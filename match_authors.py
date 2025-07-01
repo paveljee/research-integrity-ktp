@@ -72,8 +72,8 @@ def download_parquet_to_dataframe(url):
 
 def main():
     """Main function to orchestrate the author matching process."""
-    excel_file = 'names.xlsx'
-    output_csv_file = 'matched_authors_details.csv'
+    excel_file = 'names.xlsx' # Reverted to default
+    output_csv_file = 'matched_authors_details.csv' # Reverted to default
 
     # 1. Read names from Excel
     names_df = read_names_from_excel(excel_file)
