@@ -634,6 +634,11 @@ def main_test_run(sample_n: int):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--sample_n", type=int, default=5, help="Number of samples to run")
+    parser.add_argument(
+        "-n", "--sample_n",
+        type=int,
+        default=5,
+        help="Number of samples to run"
+    )
     args = parser.parse_args()
     main_test_run(sample_n=args.sample_n)
