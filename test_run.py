@@ -256,7 +256,8 @@ def main_test_run(sample_n: int):
                 logger.info(f"Processing OpenAlex request {i+1} of {len(sample_df)} for name: '{combined_name_for_api}' (querying OpenAlex API)")
                 # If not in graph by HCR names, call API
                 api_calls_attempted += 1
-                api_id = get_openalex_author_id(combined_name_for_api, top_k=1)
+                # Pass a dummy dict for the accumulator as test_run.py doesn't use this aggregated output
+                api_id = get_openalex_author_id(combined_name_for_api, {}, top_k=1)
                 openalex_ids.append(api_id)
                 if api_id:
                     api_calls_succeeded += 1
@@ -266,7 +267,8 @@ def main_test_run(sample_n: int):
             logger.info(f"Processing OpenAlex request {i+1} of {len(sample_df)} for name: '{combined_name_for_api}' (no first/last name for graph lookup, querying OpenAlex API)")
             # If no first/last name, fall back to API directly (should not happen with good input data)
             api_calls_attempted += 1
-            api_id = get_openalex_author_id(combined_name_for_api, top_k=1)
+            # Pass a dummy dict for the accumulator as test_run.py doesn't use this aggregated output
+            api_id = get_openalex_author_id(combined_name_for_api, {}, top_k=1)
             openalex_ids.append(api_id)
             if api_id:
                 api_calls_succeeded += 1
