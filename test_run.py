@@ -47,7 +47,7 @@ def main_test_run():
     """Main function for the test run."""
     load_dotenv()
     SEED = 42
-    SAMPLE_N = 50
+    SAMPLE_N = 100
     OUTPUT_DIR = "test_run_outputs"
     # The below subdir to enable gitignore but still track report
     OUTPUT_DATA_DIR = os.path.join(OUTPUT_DIR, "data")
