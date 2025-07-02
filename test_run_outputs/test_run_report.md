@@ -274,12 +274,12 @@
     - `Sodai Narumi`: 1 occurrences
 
 ## Pipeline Execution Timing
-- Excel Reading: 0.2254 seconds
-- OpenAlex API Interaction and Graph Lookup: 0.8195 seconds
-- Authors Parquet Reading: 0.0088 seconds
-- Author Details Parquet Reading: 0.0040 seconds
-- Data Collation: 0.0085 seconds
-- Collated Parquet Saving: 0.0118 seconds
+- Excel Reading: 0.1237 seconds
+- OpenAlex API Interaction and Graph Lookup: 0.7808 seconds
+- Authors Parquet Reading: 0.0037 seconds
+- Author Details Parquet Reading: 0.0027 seconds
+- Data Collation: 0.0047 seconds
+- Collated Parquet Saving: 0.0049 seconds
 - Collated CSV Saving: 0.0000 seconds
-- RDF Generation and Serialization: 0.0484 seconds
-- **Overall Script**: 1.2238 seconds
+- RDF Generation and Serialization: 0.0418 seconds
+- **Overall Script**: 1.0012 seconds
