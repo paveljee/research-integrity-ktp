@@ -4,6 +4,7 @@ import os
 import numpy as np
 import hashlib
 import time # Added for timing
+import json # Added for JSON caching
 from dotenv import load_dotenv
 from rdflib import Graph, Literal, Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, XSD, DCTERMS, FOAF, OWL
@@ -28,20 +29,73 @@ def calculate_sha256(file_path):
         return None
 
 def get_parquet_stats(file_path, file_name_for_report):
-    """Gets basic stats from a Parquet file."""
+    """Gets basic stats from a Parquet file, using a JSON cache based on file hash."""
+    current_hash = calculate_sha256(file_path)
+    if current_hash is None: # Happens if file not found
+        return {
+            f"{file_name_for_report} Error": "File not found during hash calculation.",
+            f"{file_name_for_report} SHA256": None
+        }
+
+    # Define cache directory and file path
+    # Assuming OUTPUT_DATA_DIR is globally accessible or passed somehow.
+    # For now, let's define it relative to script execution or a fixed path if not available.
+    # Plan stated OUTPUT_DATA_DIR. test_run.py defines it in main_test_run.
+    # This function needs access to it. Simplest is to hardcode for this specific modification
+    # or rely on a global variable if this script structure assumes it.
+    # Let's assume a sub-directory within "test_run_outputs/data" for caches.
+    cache_dir = os.path.join("test_run_outputs", "data", "parquet_stats_cache")
+    os.makedirs(cache_dir, exist_ok=True)
+    cache_file_path = os.path.join(cache_dir, f"{current_hash}.json")
+
+    # Try to load from cache
+    if os.path.exists(cache_file_path):
+        try:
+            with open(cache_file_path, 'r') as f:
+                cached_stats = json.load(f)
+            # Verify hash from cache, though filename is hash, this ensures integrity of content
+            # The SHA256 key in stats dict is like: "Authors Parquet SHA256"
+            cached_file_hash_key = f"{file_name_for_report} SHA256"
+            if cached_stats.get(cached_file_hash_key) == current_hash:
+                # print(f"Loaded stats from cache for {file_name_for_report} ({file_path})")
+                return cached_stats
+            else:
+                # Hash mismatch, cache is stale or corrupted for this filename but different content
+                # print(f"Cache hash mismatch for {file_name_for_report}. Recalculating.")
+                pass # Proceed to calculate
+        except json.JSONDecodeError:
+            # print(f"Error decoding cache file for {file_name_for_report}. Recalculating.")
+            pass # Proceed to calculate
+        except Exception: # Other errors reading cache
+            # print(f"Error reading cache file for {file_name_for_report}. Recalculating.")
+            pass # Proceed to calculate
+
+
+    # If cache not found, or stale, calculate stats
     try:
+        # print(f"Calculating stats for {file_name_for_report} ({file_path})")
         table = pq.read_table(file_path)
         stats = {
             f"{file_name_for_report} Rows": table.num_rows,
             f"{file_name_for_report} Columns": table.num_columns,
             f"{file_name_for_report} Schema": {name: str(table.schema.field(name).type) for name in table.schema.names},
-            f"{file_name_for_report} SHA256": calculate_sha256(file_path)
+            f"{file_name_for_report} SHA256": current_hash # Use already computed hash
         }
+
+        # Save to cache
+        try:
+            with open(cache_file_path, 'w') as f:
+                json.dump(stats, f, indent=4)
+            # print(f"Saved stats to cache for {file_name_for_report} ({current_hash}.json)")
+        except Exception as e:
+            # print(f"Error saving stats to cache for {file_name_for_report}: {e}")
+            # Non-fatal if caching fails, primary goal is to return stats
+            pass
         return stats
     except Exception as e:
         return {
             f"{file_name_for_report} Error": str(e),
-            f"{file_name_for_report} SHA256": calculate_sha256(file_path) # Still try to hash
+            f"{file_name_for_report} SHA256": current_hash # Still try to return hash
         }
 
 def main_test_run(sample_n: int):
