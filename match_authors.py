@@ -9,9 +9,8 @@ from pyalex import Authors
 import os
 from dotenv import load_dotenv
 
-# Optional: Set your OpenAlex API key if you have one
-# from pyalex import config
-# config.email = "your_email@example.com"
+# Optional: Set your email for OpenAlex API polite pool
+pyalex.config.email = os.getenv('OPENALEX_EMAIL')
 
 def read_names_from_excel(file_path):
     """Reads names from an Excel file into a pandas DataFrame."""
