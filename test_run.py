@@ -47,7 +47,7 @@ def main_test_run():
     """Main function for the test run."""
     load_dotenv()
     SEED = 42
-    SAMPLE_N = 5
+    SAMPLE_N = 100
     OUTPUT_DIR = "test_run_outputs"
     # The below subdir to enable gitignore but still track report
     OUTPUT_DATA_DIR = os.path.join(OUTPUT_DIR, "data")
@@ -145,43 +145,67 @@ def main_test_run():
 
     # --- Enhanced OpenAlex ID retrieval with graph lookup ---
     openalex_ids = []
-    api_calls_made = 0
-    found_in_graph = 0
+    api_calls_attempted = 0
+    api_calls_succeeded = 0
+    api_calls_failed = 0
+    found_in_graph_count = 0 # Renamed from found_in_graph for clarity
 
-    for name_to_search in sample_df['name']:
-        # Check graph first
-        query = f"""
-            SELECT ?author_uri WHERE {{
-                ?author_uri rdf:type openalex:Author ;
-                            schema:name ?name .
-                FILTER(LCASE(STR(?name)) = LCASE("{name_to_search.replace('"', '""')}"))
-            }} LIMIT 1
-        """
-        # Ensure g is defined (it's defined later, so we need to load it earlier or pass it)
-        # For now, let's assume g is loaded at the beginning of main_test_run for this check.
-        # This requires moving graph loading up or passing 'g' around.
-        # To minimize changes, we'll load 'g' specifically for this section if not already global.
-        # However, the plan is to load 'g' once. So, let's adjust where 'g' is loaded.
-        # For this diff, I will assume 'g' (the master graph) is already loaded.
-        # 'g' is now loaded at the beginning of main_test_run.
+    # Ensure 'first name' and 'last name' columns are lowercased like others from read_names_from_excel
+    # This assumes read_names_from_excel already lowercases all columns.
+    # If not, an explicit lowercasing step for sample_df.columns might be needed here or in read_names_from_excel.
+    # For this change, we'll rely on the existing behavior of read_names_from_excel.
 
-        results = list(g.query(query)) # Use the globally loaded graph 'g'
+    for index, row in sample_df.iterrows():
+        first_name = row.get('first name')
+        last_name = row.get('last name')
+        combined_name_for_api = row.get('name') # This is the name used for OpenAlex API call
 
-        if results:
-            author_uri = str(results[0][0])
-            openalex_ids.append(author_uri)
-            found_in_graph += 1
+        author_uri_from_graph = None
+
+        if pd.notna(first_name) and pd.notna(last_name):
+            # Escape names for SPARQL query
+            sparql_first_name = str(first_name).replace('"', '""')
+            sparql_last_name = str(last_name).replace('"', '""')
+
+            query = f"""
+                SELECT ?author_uri WHERE {{
+                    ?author_uri hcr:firstName ?fn ;
+                                hcr:lastName ?ln .
+                    FILTER(LCASE(STR(?fn)) = LCASE("{sparql_first_name}") && LCASE(STR(?ln)) = LCASE("{sparql_last_name}"))
+                }} LIMIT 1
+            """
+            results = list(g.query(query))
+            if results:
+                author_uri_from_graph = str(results[0][0])
+                openalex_ids.append(author_uri_from_graph)
+                found_in_graph_count += 1
+            else:
+                # If not in graph by HCR names, call API
+                api_calls_attempted += 1
+                api_id = get_openalex_author_id(combined_name_for_api, top_k=1)
+                openalex_ids.append(api_id)
+                if api_id:
+                    api_calls_succeeded += 1
+                else:
+                    api_calls_failed += 1
         else:
-            # If not in graph, call API
-            api_id = get_openalex_author_id(name_to_search, top_k=1)
+            # If no first/last name, fall back to API directly (should not happen with good input data)
+            api_calls_attempted += 1
+            api_id = get_openalex_author_id(combined_name_for_api, top_k=1)
             openalex_ids.append(api_id)
-            if api_id: # Count as API call only if it returns something (even if it's a valid None due to no match)
-                api_calls_made +=1 # Increment if an attempt was made
+            if api_id:
+                api_calls_succeeded += 1
+            else:
+                api_calls_failed += 1
 
     sample_df['openalex_id'] = openalex_ids
     timings["OpenAlex API Interaction and Graph Lookup"] = time.time() - t_start
-    report_content += f"- Searched {len(sample_df)} names: {found_in_graph} found in existing graph, {api_calls_made} potential API lookups performed.\n"
-    # Note: api_calls_made counts attempts. Actual successful API hits might be lower if names aren't found by API.
+
+    report_content += f"- Processed {len(sample_df)} names:\n"
+    report_content += f"  - Found in local graph (API call skipped): {found_in_graph_count}\n"
+    report_content += f"  - API calls attempted: {api_calls_attempted}\n"
+    report_content += f"  - API calls succeeded (found OpenAlex ID): {api_calls_succeeded}\n"
+    report_content += f"  - API calls failed (no OpenAlex ID found): {api_calls_failed}\n"
 
     matched_sample_df = sample_df.dropna(subset=['openalex_id']).copy()
     matched_ids = [oid.split('/')[-1] for oid in matched_sample_df['openalex_id'].tolist() if oid]
