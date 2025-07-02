@@ -3,6 +3,7 @@ import pyarrow.parquet as pq
 import os
 import numpy as np
 import hashlib
+import time # Added for timing
 from dotenv import load_dotenv
 from rdflib import Graph, Literal, Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, XSD, DCTERMS, FOAF, OWL
@@ -49,6 +50,9 @@ def main_test_run():
     OUTPUT_DIR = "test_run_outputs"
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+    timings = {}
+    overall_start_time = time.time()
+
     excel_file_path = os.getenv('EXCEL_FILE_PATH', 'dummy_data/dummy_names.xlsx')
     authors_parquet_path = os.getenv('AUTHORS_PARQUET_PATH', 'dummy_data/dummy_authors.parquet')
     author_details_parquet_path = os.getenv('AUTHOR_DETAILS_PARQUET_PATH', 'dummy_data/dummy_author_details.parquet')
@@ -88,9 +92,14 @@ def main_test_run():
 
     # 2. Sample from Excel
     report_content += "## Data Sampling and Matching\n"
+    t_start = time.time()
     input_df = read_names_from_excel(excel_file_path)
+    timings["Excel Reading"] = time.time() - t_start
     if input_df.empty or 'name' not in input_df.columns:
         report_content += "- Error: Could not read name columns from Excel or Excel is empty.\n"
+        # Attempt to save report even on error
+        timings["Overall Script"] = time.time() - overall_start_time
+        report_content += f"\nTotal execution time: {timings['Overall Script']:.2f} seconds.\n"
         with open(os.path.join(OUTPUT_DIR, "test_run_report.md"), "w") as f:
             f.write(report_content)
         print("Error reading Excel. Check report.")
@@ -106,7 +115,9 @@ def main_test_run():
 
     # 3. Find OpenAlex IDs (top_k=1)
     report_content += "- Finding OpenAlex IDs (top_k=1, highest relevance only).\n"
+    t_start = time.time()
     sample_df['openalex_id'] = sample_df['name'].apply(lambda name: get_openalex_author_id(name, top_k=1))
+    timings["OpenAlex API Interaction"] = time.time() - t_start
 
     matched_sample_df = sample_df.dropna(subset=['openalex_id']).copy()
     matched_ids = [oid.split('/')[-1] for oid in matched_sample_df['openalex_id'].tolist() if oid]
@@ -114,6 +125,8 @@ def main_test_run():
 
     if not matched_ids:
         report_content += "- No OpenAlex IDs found for the sample. Cannot proceed.\n"
+        timings["Overall Script"] = time.time() - overall_start_time
+        report_content += f"\nTotal execution time: {timings['Overall Script']:.2f} seconds.\n"
         with open(os.path.join(OUTPUT_DIR, "test_run_report.md"), "w") as f:
             f.write(report_content)
         print("No OpenAlex IDs matched for the sample. Check report.")
@@ -128,6 +141,7 @@ def main_test_run():
     author_details_cols_to_load = ['authorid', 'orcid', 'display_name_alternatives', 'works_count', 'cited_by_count', 'last_known_institution', 'works_api_url', 'updated_date']
     # Note: 'display_name' is in both, will be suffixed by merge. We'll keep author_details one if different.
 
+    t_start = time.time()
     try:
         authors_table = pq.read_table(authors_parquet_path, columns=authors_cols_to_load, filters=[('authorid', 'in', matched_ids)])
         authors_data_df = authors_table.to_pandas()
@@ -135,7 +149,9 @@ def main_test_run():
     except Exception as e:
         report_content += f"- Error reading authors Parquet: {e}\n"
         authors_data_df = pd.DataFrame()
+    timings["Authors Parquet Reading"] = time.time() - t_start
 
+    t_start = time.time()
     try:
         author_details_table = pq.read_table(author_details_parquet_path, columns=author_details_cols_to_load, filters=[('authorid', 'in', matched_ids)])
         author_details_data_df = author_details_table.to_pandas()
@@ -143,11 +159,18 @@ def main_test_run():
     except Exception as e:
         report_content += f"- Error reading author details Parquet: {e}\n"
         author_details_data_df = pd.DataFrame()
+    timings["Author Details Parquet Reading"] = time.time() - t_start
 
     # 5. Collate information
-    # Start with the successfully matched OpenAlex IDs and their original names
-    collated_df = matched_sample_df[['name', 'openalex_id']].copy()
-    collated_df['authorid'] = collated_df['openalex_id'].apply(lambda x: x.split('/')[-1])
+    t_start = time.time()
+    # Start with the matched sample, which now includes all original Excel columns
+    collated_df = matched_sample_df.copy()
+    # Ensure 'authorid' column is created for merging, if 'openalex_id' exists
+    if 'openalex_id' in collated_df.columns:
+        collated_df['authorid'] = collated_df['openalex_id'].apply(lambda x: x.split('/')[-1] if pd.notnull(x) else None)
+    else: # Should not happen if matching occurred
+        collated_df['authorid'] = None
+
 
     if not authors_data_df.empty:
         collated_df = pd.merge(collated_df, authors_data_df, on='authorid', how='left')
@@ -163,20 +186,23 @@ def main_test_run():
         elif 'display_name_author_stats' in collated_df.columns: # if only stats has it
              collated_df.rename(columns={'display_name_author_stats': 'display_name'}, inplace=True)
 
-
+    timings["Data Collation"] = time.time() - t_start
     report_content += f"- Collated DataFrame has {len(collated_df)} rows and {len(collated_df.columns)} columns.\n"
 
     # 6. Save collated DataFrame to Parquet
     collated_parquet_path = os.path.join(OUTPUT_DIR, "collated_sample_data.parquet")
+    t_start = time.time()
     try:
         collated_df.to_parquet(collated_parquet_path, index=False)
         report_content += f"- Successfully saved collated data to `{collated_parquet_path}`.\n"
     except Exception as e:
         report_content += f"- Error saving collated data to Parquet: {e}\n"
+    timings["Collated Parquet Saving"] = time.time() - t_start
 
 
     # 7. Save to RDF Turtle
     report_content += "\n## RDF Graph Generation\n"
+    t_start = time.time()
     g = Graph()
     g.bind("sciscinet", SCISCINET)
     g.bind("openalex", OPENALEX)
@@ -278,10 +304,85 @@ def main_test_run():
         g.serialize(destination=rdf_file_path, format="turtle")
         report_content += f"- Successfully saved RDF graph to `{rdf_file_path}`.\n"
         report_content += f"- RDF Graph contains {len(g)} triples.\n"
-    except Exception as e:
-        report_content += f"- Error saving RDF graph: {e}\n"
 
-    # 8. Save Markdown Report
+        # Enhanced RDF Triple Statistics
+        report_content += "\n### RDF Triple Statistics\n"
+        predicates = sorted(list(set(g.predicates())))
+        if not predicates:
+            report_content += "- No predicates found in the graph to analyze.\n"
+        else:
+            report_content += f"- Analyzing {len(predicates)} unique predicates:\n"
+
+        for p_idx, p in enumerate(predicates):
+            p_label = str(p)
+            try:
+                qname = g.qname(p)
+                if qname:
+                    p_label = qname
+            except:
+                pass # Keep full URI if qname fails
+
+            report_content += f"\n#### Predicate {p_idx+1}: `{p_label}`\n"
+
+            objects = [o for s, _, o in g.triples((None, p, None))]
+            report_content += f"- Total occurrences: {len(objects)}\n"
+
+            numeric_values = []
+            non_numeric_values = []
+
+            for obj in objects:
+                if isinstance(obj, Literal) and obj.datatype in [XSD.integer, XSD.float, XSD.double, XSD.decimal, XSD.long, XSD.short, XSD.byte, XSD.unsignedByte, XSD.unsignedInt, XSD.unsignedLong, XSD.unsignedShort]:
+                    try:
+                        numeric_values.append(float(obj.value))
+                    except (ValueError, TypeError):
+                        non_numeric_values.append(str(obj)) # Treat as non-numeric if conversion fails
+                elif isinstance(obj, Literal):
+                    non_numeric_values.append(str(obj.value)) # Store the value of the literal
+                else: # URIRef
+                    try:
+                        qname_obj = g.qname(obj)
+                        non_numeric_values.append(qname_obj if qname_obj else str(obj))
+                    except:
+                        non_numeric_values.append(str(obj))
+
+
+            if numeric_values:
+                series = pd.Series(numeric_values)
+                report_content += "- **Numeric Values Statistics:**\n"
+                report_content += f"  - Count: {len(numeric_values)}\n"
+                report_content += f"  - Mean: {series.mean():.2f}\n"
+                report_content += f"  - Median: {series.median():.2f}\n"
+                report_content += f"  - Q1 (25th percentile): {series.quantile(0.25):.2f}\n"
+                report_content += f"  - Q3 (75th percentile): {series.quantile(0.75):.2f}\n"
+                if len(non_numeric_values) > 0: # If there was a mix
+                    report_content += f"  - Also found {len(non_numeric_values)} non-numeric or non-convertible values.\n"
+
+            if non_numeric_values:
+                report_content += "- **Non-Numeric Values Statistics:**\n"
+                report_content += f"  - Count of distinct values: {pd.Series(non_numeric_values).nunique()}\n"
+                value_counts = pd.Series(non_numeric_values).value_counts()
+                report_content += "  - Top 5 most frequent values:\n"
+                for val, count in value_counts.head(5).items():
+                    report_content += f"    - `{val}`: {count} occurrences\n"
+                if len(numeric_values) > 0 and not non_numeric_values and not numeric_values: # Edge case if all numeric failed conversion
+                     report_content += f"  - Found {len(non_numeric_values)} non-numeric or non-convertible values (originally detected as numeric).\n"
+
+
+    except Exception as e:
+        report_content += f"- Error saving or analyzing RDF graph: {e}\n"
+    timings["RDF Generation and Serialization"] = time.time() - t_start
+
+    # 8. Add Timing Report
+    report_content += "\n## Pipeline Execution Timing\n"
+    for stage, duration in timings.items():
+        if stage != "Overall Script": # Overall script time will be added last
+            report_content += f"- {stage}: {duration:.4f} seconds\n"
+
+    timings["Overall Script"] = time.time() - overall_start_time
+    report_content += f"- **Overall Script**: {timings['Overall Script']:.4f} seconds\n"
+
+
+    # 9. Save Markdown Report
     report_path = os.path.join(OUTPUT_DIR, "test_run_report.md")
     with open(report_path, "w") as f:
         f.write(report_content)

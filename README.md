@@ -12,9 +12,9 @@ The process involves:
 1.  Reading author names from a user-provided Excel sheet.
 2.  Querying the OpenAlex API to find the most relevant author profile for each name (defaulting to the one with the highest `works_count` and `relevance_score`).
 3.  Retrieving detailed author statistics and metadata for matched OpenAlex IDs from local Parquet files (an `authors` dataset and an `author_details` dataset).
-4.  Collating all retrieved information into a unified data structure.
+    *   Collates all retrieved information (including all original columns from the Excel file) into a unified data structure.
 5.  Serializing this collated data into an RDF graph (Turtle format) using defined ontologies and also into a Parquet file for efficient tabular data access.
-6.  A test script (`test_run.py`) allows for a sample execution, producing a report and example outputs.
+    *   A test script (`test_run.py`) allows for a sample execution, producing a report and example outputs. The report now includes detailed execution timings for various pipeline stages and enhanced statistics for each predicate in the generated RDF graph.
 
 ## 3. System Architecture and Implementation
 
@@ -60,9 +60,9 @@ This script provides a mechanism to test the pipeline with a sample of data and 
         *   Authors Parquet: `['authorid', 'avg_c10', 'avg_logc10', 'productivity', 'h_index', 'display_name', 'inference_sources', 'inference_counts', 'P(gf)']`
         *   Author Details Parquet: `['authorid', 'orcid', 'display_name_alternatives', 'works_count', 'cited_by_count', 'last_known_institution', 'works_api_url', 'updated_date']`
 6.  **Data Collation**:
-    *   Merges the sampled names, their OpenAlex IDs, and the retrieved data from both Parquet files into a single Pandas DataFrame. Handles potential duplicate column names (e.g., `display_name`).
+        *   Merges the sampled names (retaining all original columns from the Excel input), their OpenAlex IDs, and the retrieved data from both Parquet files into a single Pandas DataFrame. Handles potential duplicate column names (e.g., `display_name`).
 7.  **Output Generation**:
-    *   **Parquet File**: Saves the collated DataFrame to `test_run_outputs/collated_sample_data.parquet`.
+    *   **Parquet File**: Saves the collated DataFrame (which includes all original Excel columns) to `test_run_outputs/collated_sample_data.parquet`.
     *   **RDF Turtle File**:
         *   Creates an RDF graph using `rdflib`.
         *   Binds prefixes for `sciscinet` (custom), `openalex`, `schema` (Schema.org), `dcterms`, `foaf`, `owl`.
@@ -80,6 +80,10 @@ This script provides a mechanism to test the pipeline with a sample of data and 
             *   Statistics about the sample taken (total names, sample size).
             *   Number of matched OpenAlex IDs.
             *   Statistics about the resulting RDF graph (number of triples) and the output Parquet file.
+            *   **Pipeline Execution Timing**: A breakdown of how much time each major step of the pipeline took to execute (e.g., Excel reading, OpenAlex API calls, Parquet reading, RDF generation).
+            *   **RDF Triple Statistics**: For each unique predicate in the generated RDF graph, provides:
+                *   For numeric literal objects: count, mean, median, Q1 (25th percentile), Q3 (75th percentile).
+                *   For non-numeric objects (URIs, string literals): count of distinct values and top 5 most frequent values with their occurrence counts.
 
 ### 3.4. Ontologies Used in RDF
 
@@ -219,7 +223,7 @@ Jules proposed a 6-step plan:
 
 **Post-Submission Testing and Debugging (Interactive Session):**
 
-Following the initial submission, the user requested that Jules actually run `test_run.py` and critically assess its output. This led to the following steps:
+Following the initial submission, the user requested that Jules actually run `test_run.py` and critically assess its output. This led to the following steps: (Note: The following describes the *initial* debugging. Further modifications for preserving all Excel columns, adding timings, and RDF stats were done in a subsequent session, detailed below this original log.)
 
 1.  **Request for Test Data:** Jules initially asked the user to provide dummy Excel and Parquet files.
 2.  **User Provides Sample Data & Instructs Jules to Create Files:** The user provided a list of authors with OpenAlex IDs and instructed Jules to synthesize the necessary dummy files (`.xlsx` and `.parquet`) based on this and the required schemas.
@@ -242,9 +246,45 @@ Following the initial submission, the user requested that Jules actually run `te
 6.  **Final Submission:** After confirming the successful test run and satisfactory report, Jules submitted the updated code, including the fixes. The dummy data itself is not part of the primary codebase but was essential for this validation.
 7.  **README Update:** The user pointed out that the README's session log was not updated with the preceding debugging session. Jules then updated this section of the README to provide a complete account.
 
+**Follow-up Modifications (Current Session):**
+
+The user subsequently requested further enhancements:
+-   **Preserve All Excel Columns**: Modify the pipeline to ensure all original columns from the input Excel file are carried through to the final `collated_sample_data.parquet`.
+-   **Pipeline Timing**: Instrument `test_run.py` to measure and report the execution time of various stages (Excel reading, OpenAlex API calls, Parquet loading, collation, RDF generation, etc.).
+-   **Enhanced RDF Statistics**: Augment the Markdown report with detailed statistics for each predicate in the RDF graph, including mean/median/quartiles for numerical literals and frequency counts for non-numerical literals and URIs.
+-   **README Update**: Revise the README to reflect these new features.
+
+**Jules' Actions for Follow-up Modifications:**
+
+1.  **Plan Creation**: Jules outlined a new multi-step plan to address these requirements.
+2.  **Modify `match_authors.py`**:
+    *   Altered `read_names_from_excel` to return the full DataFrame from the Excel sheet instead of just the 'name' column.
+3.  **Update `test_run.py` for Full Column Preservation**:
+    *   Modified `test_run.py` so that `collated_df` starts as a copy of `matched_sample_df` (which itself is derived from the full `input_df`), thus preserving all original Excel columns through the merging process.
+4.  **Add Timing Instrumentation to `test_run.py`**:
+    *   Imported the `time` module.
+    *   Added timing calls around key sections: Excel reading, OpenAlex API interaction, Parquet file loading (authors and details separately), data collation, saving the collated Parquet file, and RDF graph generation/serialization.
+    *   Created a new "Pipeline Execution Timing" section in the Markdown report to display these timings.
+5.  **Enhance RDF Graph Statistics in `test_run.py`**:
+    *   Added a new subsection "RDF Triple Statistics" to the report.
+    *   Implemented logic to iterate through all unique predicates in the generated graph.
+    *   For each predicate:
+        *   Collected all associated objects.
+        *   Distinguished between numeric and non-numeric objects (attempting conversion for XSD numeric types).
+        *   Calculated and reported count, mean, median, Q1, Q3 for numeric data.
+        *   Calculated and reported distinct counts and top 5 frequent values for non-numeric/URI data.
+6.  **Update `README.md`**:
+    *   Revised relevant sections of the README to describe:
+        *   The preservation of all original Excel columns.
+        *   The new pipeline execution timing details in the report.
+        *   The enhanced RDF triple statistics in the report.
+        *   Added this summary of the follow-up modifications to the "Code Generation and Session Log" section.
+
+These changes were implemented sequentially, with Jules confirming each step. The focus remained on minimal and efficient code modifications as per the initial user directive.
+
 **Observations on AI Collaboration:**
 
-Jules demonstrated a strong ability to understand complex, multi-part requests and translate them into a structured plan. The AI was responsive to iterative feedback, incorporating new requirements. The implementation of efficient Parquet reading, detailed RDF generation, and the creation of this README were key contributions. The interactive debugging phase, though involving several steps, highlighted the AI's capability to analyze errors, propose solutions, and refine them until the issue was resolved, ultimately leading to a functional script and validated output. The AI also handled the creation of complex dummy data based on partial specifications and updated documentation post-hoc.
+Jules demonstrated a strong ability to understand complex, multi-part requests and translate them into a structured plan. The AI was responsive to iterative feedback, incorporating new requirements. The implementation of efficient Parquet reading, detailed RDF generation, and the creation of this README were key contributions. The interactive debugging phase, though involving several steps, highlighted the AI's capability to analyze errors, propose solutions, and refine them until the issue was resolved, ultimately leading to a functional script and validated output. The AI also handled the creation of complex dummy data based on partial specifications and updated documentation post-hoc. The follow-up session further showcased Jules' ability to integrate new features systematically into the existing codebase and documentation.
 
 ## 7. Future Work
 

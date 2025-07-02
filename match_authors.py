@@ -19,12 +19,16 @@ def read_names_from_excel(file_path):
         df = pd.read_excel(file_path, sheet_name=0, engine='openpyxl')
         df.columns = [col.lower() for col in df.columns]
         if 'first name' not in df.columns or 'last name' not in df.columns:
-            raise ValueError("Excel file must contain name columns (case-insensitive).")
-        df['name'] = df['first name'].fillna('') + ' ' + df['last name'].fillna('')
-        return df[['name']]
+            # Still create the 'name' column for matching, but return the whole df
+            df['name'] = df.get('first name', pd.Series(dtype='str')).fillna('') + ' ' + df.get('last name', pd.Series(dtype='str')).fillna('')
+        elif 'name' not in df.columns: # If 'name' column is not present, but 'first name' and 'last name' are
+            df['name'] = df['first name'].fillna('') + ' ' + df['last name'].fillna('')
+        # If 'name' column already exists, use it as is.
+        # If none of ('first name', 'last name') or 'name' exist, it will be handled by downstream checks or fail.
+        return df
     except FileNotFoundError:
         print(f"Error: File not found at {file_path}")
-        return pd.DataFrame({'name': []})
+        return pd.DataFrame()
     except Exception as e:
         print(f"Error reading Excel file: {e}")
         return pd.DataFrame({'name': []})
