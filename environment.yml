@@ -1,0 +1,9 @@
+name: author_matching_env
+channels:
+  - defaults
+  - conda-forge # Often good to include for broader package availability
+dependencies:
+  - python=3.12 # Or your specific Python version, let's assume 3.12 based on recent numpy/pandas
+  - pip
+  - pip:
+    - -r requirements.txt

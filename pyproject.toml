@@ -1,0 +1,36 @@
+[tool.poetry]
+name = "author-matching-project"
+version = "0.1.0"
+description = "A project to match author names to OpenAlex IDs and retrieve further details."
+authors = ["Your Name <you@example.com>"] # Placeholder
+readme = "README.md" # Assuming a README might be added later
+
+[tool.poetry.dependencies]
+python = "^3.9" # Specify a compatible Python version range, e.g., ^3.9, ^3.10, ^3.11, ^3.12
+
+# Dependencies will be listed here if/when poetry is fully adopted.
+# For now, they are managed via requirements.txt and environment.yml
+# Example:
+# pandas = "^2.0"
+# pyalex = "^0.18"
+# openpyxl = "^3.1"
+# requests = "^2.32"
+# pyarrow = "^20.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+# Add any other sections you might need, e.g., for linters, formatters, test runners
+# [tool.black]
+# line-length = 88
+#
+# [tool.isort]
+# profile = "black"
+#
+# [tool.pytest.ini_options]
+# minversion = "6.0"
+# addopts = "-ra -q"
+# testpaths = [
+#    "tests",
+# ]
