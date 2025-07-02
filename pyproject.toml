@@ -7,15 +7,8 @@ readme = "README.md" # Assuming a README might be added later
 
 [tool.poetry.dependencies]
 python = "^3.9" # Specify a compatible Python version range, e.g., ^3.9, ^3.10, ^3.11, ^3.12
-
-# Dependencies will be listed here if/when poetry is fully adopted.
-# For now, they are managed via requirements.txt and environment.yml
-# Example:
-# pandas = "^2.0"
-# pyalex = "^0.18"
-# openpyxl = "^3.1"
-# requests = "^2.32"
-# pyarrow = "^20.0"
+pandas = "2.3.0"
+pyalex = "0.18"
 
 [build-system]
 requires = ["poetry-core"]
