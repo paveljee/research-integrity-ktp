@@ -121,7 +121,9 @@ def main_test_run():
     timings["OpenAlex API Interaction"] = time.time() - t_start
 
     matched_sample_df = sample_df.dropna(subset=['openalex_id']).copy()
-    matched_ids = [oid.split('/')[-1] for oid in matched_sample_df['openalex_id'].tolist() if oid]
+    # Ensure matched_ids are strings, as they are typically UUIDs or similar from OpenAlex.
+    # This also aligns with optimize_matching_speed.py's internal conversion of matched_ids to strings.
+    matched_ids = [str(oid.split('/')[-1]) for oid in matched_sample_df['openalex_id'].tolist() if oid and pd.notna(oid)]
     report_content += f"- Found {len(matched_ids)} unique OpenAlex IDs for the sample.\n"
 
     if not matched_ids:
@@ -140,27 +142,48 @@ def main_test_run():
     authors_cols_to_load = ['authorid', 'avg_c10', 'avg_logc10', 'productivity', 'h_index', 'display_name', 'inference_sources', 'inference_counts', 'P(gf)']
     # Author Details Parquet schema: ['authorid', 'orcid', 'display_name', 'display_name_alternatives', 'works_count', 'cited_by_count', 'last_known_institution', 'works_api_url', 'updated_date']
     author_details_cols_to_load = ['authorid', 'orcid', 'display_name_alternatives', 'works_count', 'cited_by_count', 'last_known_institution', 'works_api_url', 'updated_date']
-    # Note: 'display_name' is in both, will be suffixed by merge. We'll keep author_details one if different.
 
-    t_start = time.time()
-    try:
-        authors_table = pq.read_table(authors_parquet_path, columns=authors_cols_to_load, filters=[('authorid', 'in', matched_ids)])
-        authors_data_df = authors_table.to_pandas()
-        report_content += f"- Successfully read {len(authors_data_df)} matching records from authors parquet.\n"
-    except Exception as e:
-        report_content += f"- Error reading authors Parquet: {e}\n"
-        authors_data_df = pd.DataFrame()
-    timings["Authors Parquet Reading"] = time.time() - t_start
+    # Import the optimizer function
+    from optimize_matching_speed import load_parquet_with_strategies
 
-    t_start = time.time()
-    try:
-        author_details_table = pq.read_table(author_details_parquet_path, columns=author_details_cols_to_load, filters=[('authorid', 'in', matched_ids)])
-        author_details_data_df = author_details_table.to_pandas()
-        report_content += f"- Successfully read {len(author_details_data_df)} matching records from author details parquet.\n"
-    except Exception as e:
-        report_content += f"- Error reading author details Parquet: {e}\n"
-        author_details_data_df = pd.DataFrame()
-    timings["Author Details Parquet Reading"] = time.time() - t_start
+    report_content += "\n## Optimized Parquet Loading Details\n"
+
+    # Load Authors Data using the optimizer
+    t_overall_authors_load_start = time.time()
+    authors_data_df, authors_timing_report = load_parquet_with_strategies(
+        parquet_path=authors_parquet_path,
+        matched_ids=matched_ids, # Already a list of strings
+        columns_to_load=authors_cols_to_load,
+        selected_strategy="all",
+        id_column_name='authorid'
+    )
+    timings["Authors Parquet Optimized Loading"] = time.time() - t_overall_authors_load_start
+    report_content += f"\n### Authors Parquet Loading Report ({os.path.basename(authors_parquet_path)})\n"
+    report_content += authors_timing_report
+    if authors_data_df.empty: # Check if DataFrame is empty
+        report_content += f"- Info: Authors Parquet loading resulted in an empty DataFrame ({len(authors_data_df)} records).\n"
+    else:
+        report_content += f"- Successfully loaded {len(authors_data_df)} records from authors parquet using optimized strategies.\n"
+
+
+    # Load Author Details Data using the optimizer
+    t_overall_details_load_start = time.time()
+    author_details_data_df, details_timing_report = load_parquet_with_strategies(
+        parquet_path=author_details_parquet_path,
+        matched_ids=matched_ids, # Already a list of strings
+        columns_to_load=author_details_cols_to_load,
+        selected_strategy="all",
+        id_column_name='authorid'
+    )
+    timings["Author Details Parquet Optimized Loading"] = time.time() - t_overall_details_load_start
+    report_content += f"\n### Author Details Parquet Loading Report ({os.path.basename(author_details_parquet_path)})\n"
+    report_content += details_timing_report
+    if author_details_data_df.empty: # Check if DataFrame is empty
+        report_content += f"- Info: Author Details Parquet loading resulted in an empty DataFrame ({len(author_details_data_df)} records).\n"
+    else:
+        report_content += f"- Successfully loaded {len(author_details_data_df)} records from author details parquet using optimized strategies.\n"
+    report_content += "\n"
+
 
     # 5. Collate information
     t_start = time.time()
