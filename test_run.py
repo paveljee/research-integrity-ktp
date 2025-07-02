@@ -216,6 +216,7 @@ def main_test_run(sample_n: int):
     t_start = time.time()
 
     # --- Enhanced OpenAlex ID retrieval with graph lookup ---
+    all_api_search_results = {} # Accumulator for full API results
     openalex_ids = []
     api_calls_attempted = 0
     api_calls_succeeded = 0
@@ -256,8 +257,7 @@ def main_test_run(sample_n: int):
                 logger.info(f"Processing OpenAlex request {i+1} of {len(sample_df)} for name: '{combined_name_for_api}' (querying OpenAlex API)")
                 # If not in graph by HCR names, call API
                 api_calls_attempted += 1
-                # Pass a dummy dict for the accumulator as test_run.py doesn't use this aggregated output
-                api_id = get_openalex_author_id(combined_name_for_api, {}, top_k=1)
+                api_id = get_openalex_author_id(combined_name_for_api, all_api_search_results, top_k=1)
                 openalex_ids.append(api_id)
                 if api_id:
                     api_calls_succeeded += 1
@@ -267,8 +267,7 @@ def main_test_run(sample_n: int):
             logger.info(f"Processing OpenAlex request {i+1} of {len(sample_df)} for name: '{combined_name_for_api}' (no first/last name for graph lookup, querying OpenAlex API)")
             # If no first/last name, fall back to API directly (should not happen with good input data)
             api_calls_attempted += 1
-            # Pass a dummy dict for the accumulator as test_run.py doesn't use this aggregated output
-            api_id = get_openalex_author_id(combined_name_for_api, {}, top_k=1)
+            api_id = get_openalex_author_id(combined_name_for_api, all_api_search_results, top_k=1)
             openalex_ids.append(api_id)
             if api_id:
                 api_calls_succeeded += 1
@@ -283,6 +282,17 @@ def main_test_run(sample_n: int):
     report_content += f"  - API calls attempted: {api_calls_attempted}\n"
     report_content += f"  - API calls succeeded (found OpenAlex ID): {api_calls_succeeded}\n"
     report_content += f"  - API calls failed (no OpenAlex ID found): {api_calls_failed}\n"
+
+    # Save the accumulated full API search results from test_run.py's execution
+    api_results_json_path = os.path.join(OUTPUT_DATA_DIR, "test_run_api_full_results.json")
+    try:
+        with open(api_results_json_path, 'w') as f_json:
+            json.dump(all_api_search_results, f_json, indent=4)
+        logger.info(f"Successfully saved full API search results from test_run to {api_results_json_path}")
+        report_content += f"- Full API search results saved to: `{api_results_json_path}`\n"
+    except Exception as e_json:
+        logger.error(f"Error saving full API search results from test_run to JSON: {e_json}")
+        report_content += f"- Error saving full API search results to JSON: {e_json}\n"
 
     matched_sample_df = sample_df.dropna(subset=['openalex_id']).copy()
     matched_ids = [oid.split('/')[-1] for oid in matched_sample_df['openalex_id'].tolist() if oid]
