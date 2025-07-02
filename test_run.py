@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from rdflib import Graph, Literal, Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, XSD, DCTERMS, FOAF, OWL
 from match_authors import read_names_from_excel, get_openalex_author_id
+import argparse
 
 # Define Namespaces
 SCISCINET = Namespace("http://sciscinet.org/ontology/")
@@ -43,11 +44,11 @@ def get_parquet_stats(file_path, file_name_for_report):
             f"{file_name_for_report} SHA256": calculate_sha256(file_path) # Still try to hash
         }
 
-def main_test_run():
+def main_test_run(sample_n: int):
     """Main function for the test run."""
     load_dotenv()
     SEED = 42
-    SAMPLE_N = 100
+    SAMPLE_N = sample_n
     OUTPUT_DIR = "test_run_outputs"
     # The below subdir to enable gitignore but still track report
     OUTPUT_DATA_DIR = os.path.join(OUTPUT_DIR, "data")
@@ -531,4 +532,7 @@ def main_test_run():
     print(f"Test run complete. Report saved to {report_path}")
 
 if __name__ == "__main__":
-    main_test_run()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--sample_n", type=int, default=5, help="Number of samples to run")
+    args = parser.parse_args()
+    main_test_run(sample_n=args.sample_n)
