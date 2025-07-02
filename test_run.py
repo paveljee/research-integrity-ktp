@@ -115,6 +115,7 @@ def main_test_run(sample_n: int):
     timings = {}
     overall_start_time = time.time()
 
+    logger.info(f"STAGE: Starting Master Graph Parsing")
     # Initialize or load the master knowledge graph once
     t_start = time.time()
     g = Graph()
@@ -154,11 +155,13 @@ def main_test_run(sample_n: int):
 
     # 1. Input File Stats
     report_content += "## Input Files Statistics\n"
+    logger.info(f"STAGE: Starting Input File Hashing")
     t_start = time.time()
     excel_sha256 = calculate_sha256(excel_file_path)
     report_content += f"- Excel File (`{os.path.basename(excel_file_path)}`): SHA256 = `{excel_sha256}`\n"
     timings["Input File Hashing"] = time.time() - t_start
 
+    logger.info(f"STAGE: Starting Get Authors Parquet Stats")
     t_start = time.time()
     authors_stats = get_parquet_stats(authors_parquet_path, "Authors Parquet")
     for key, value in authors_stats.items():
@@ -170,6 +173,7 @@ def main_test_run(sample_n: int):
             report_content += f"- {key}: `{value}`\n"
     timings["Get Authors Parquet Stats"] = time.time() - t_start
 
+    logger.info(f"STAGE: Starting Get Author Details Parquet Stats")
     t_start = time.time()
     author_details_stats = get_parquet_stats(author_details_parquet_path, "Author Details Parquet")
     for key, value in author_details_stats.items():
@@ -184,6 +188,7 @@ def main_test_run(sample_n: int):
 
     # 2. Sample from Excel
     report_content += "## Data Sampling and Matching\n"
+    logger.info(f"STAGE: Starting Excel Reading")
     t_start = time.time()
     input_df = read_names_from_excel(excel_file_path)
     timings["Excel Reading"] = time.time() - t_start
@@ -207,6 +212,7 @@ def main_test_run(sample_n: int):
 
     # 3. Find OpenAlex IDs (top_k=1)
     report_content += "- Finding OpenAlex IDs (top_k=1, highest relevance only).\n"
+    logger.info(f"STAGE: Starting OpenAlex API Interaction and Graph Lookup")
     t_start = time.time()
 
     # --- Enhanced OpenAlex ID retrieval with graph lookup ---
@@ -221,7 +227,7 @@ def main_test_run(sample_n: int):
     # If not, an explicit lowercasing step for sample_df.columns might be needed here or in read_names_from_excel.
     # For this change, we'll rely on the existing behavior of read_names_from_excel.
 
-    for index, row in sample_df.iterrows():
+    for i, (index, row) in enumerate(sample_df.iterrows()): # Use enumerate for progress
         first_name = row.get('first name')
         last_name = row.get('last name')
         combined_name_for_api = row.get('name') # This is the name used for OpenAlex API call
@@ -245,7 +251,9 @@ def main_test_run(sample_n: int):
                 author_uri_from_graph = str(results[0][0])
                 openalex_ids.append(author_uri_from_graph)
                 found_in_graph_count += 1
+                logger.info(f"Processing OpenAlex request {i+1} of {len(sample_df)} for name: '{combined_name_for_api}' (found in local graph)")
             else:
+                logger.info(f"Processing OpenAlex request {i+1} of {len(sample_df)} for name: '{combined_name_for_api}' (querying OpenAlex API)")
                 # If not in graph by HCR names, call API
                 api_calls_attempted += 1
                 api_id = get_openalex_author_id(combined_name_for_api, top_k=1)
@@ -255,6 +263,7 @@ def main_test_run(sample_n: int):
                 else:
                     api_calls_failed += 1
         else:
+            logger.info(f"Processing OpenAlex request {i+1} of {len(sample_df)} for name: '{combined_name_for_api}' (no first/last name for graph lookup, querying OpenAlex API)")
             # If no first/last name, fall back to API directly (should not happen with good input data)
             api_calls_attempted += 1
             api_id = get_openalex_author_id(combined_name_for_api, top_k=1)
@@ -295,6 +304,7 @@ def main_test_run(sample_n: int):
     author_details_cols_to_load = ['authorid', 'orcid', 'display_name_alternatives', 'works_count', 'cited_by_count', 'last_known_institution', 'works_api_url', 'updated_date']
     # Note: 'display_name' is in both, will be suffixed by merge. We'll keep author_details one if different.
 
+    logger.info(f"STAGE: Starting Authors Parquet Reading")
     t_start = time.time()
     try:
         authors_table = pq.read_table(authors_parquet_path, columns=authors_cols_to_load, filters=[('authorid', 'in', matched_ids)])
@@ -305,6 +315,7 @@ def main_test_run(sample_n: int):
         authors_data_df = pd.DataFrame()
     timings["Authors Parquet Reading"] = time.time() - t_start
 
+    logger.info(f"STAGE: Starting Author Details Parquet Reading")
     t_start = time.time()
     try:
         author_details_table = pq.read_table(author_details_parquet_path, columns=author_details_cols_to_load, filters=[('authorid', 'in', matched_ids)])
@@ -316,6 +327,7 @@ def main_test_run(sample_n: int):
     timings["Author Details Parquet Reading"] = time.time() - t_start
 
     # 5. Collate information
+    logger.info(f"STAGE: Starting Data Collation")
     t_start = time.time()
     # Start with the matched sample, which now includes all original Excel columns
     collated_df = matched_sample_df.copy()
@@ -345,6 +357,7 @@ def main_test_run(sample_n: int):
 
     # 6a. Save collated DataFrame to Parquet
     collated_parquet_path = os.path.join(OUTPUT_DATA_DIR, "collated_sample_data.parquet")
+    logger.info(f"STAGE: Starting Collated Parquet Saving")
     t_start = time.time()
     try:
         collated_df.to_parquet(collated_parquet_path, index=False)
@@ -390,6 +403,7 @@ def main_test_run(sample_n: int):
         return collated_df_for_csv
     
     collated_csv_path = os.path.join(OUTPUT_DATA_DIR, "collated_sample_data.csv")
+    logger.info(f"STAGE: Starting Collated CSV Saving")
     t_start = time.time()
     collated_df_for_csv = prep_collated_df_for_csv(collated_df)
     try:
@@ -415,6 +429,7 @@ def main_test_run(sample_n: int):
 
     # 7. Save to RDF Turtle
     report_content += "\n## RDF Graph Generation\n"
+    logger.info(f"STAGE: Starting RDF Generation and Serialization")
     t_start = time.time()
 
     # The graph 'g' is now loaded at the start of main_test_run and updated in place.
