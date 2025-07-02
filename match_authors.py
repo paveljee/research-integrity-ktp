@@ -7,6 +7,7 @@ import pandas as pd
 import pyalex
 from pyalex import Authors
 import os
+import json # Added import
 from dotenv import load_dotenv
 from time import sleep
 from loggers import get_logger
@@ -46,24 +47,36 @@ def read_names_from_excel(file_path):
         logger.error(f"Error reading Excel file: {e}")
         return pd.DataFrame({'name': []})
 
-def get_openalex_author_id(author_name, top_k=1):
+def get_openalex_author_id(author_name, all_search_results_accumulator, top_k=1):
     """
     Finds the most likely OpenAlex author ID(s) for a given name.
     Selects author(s) with the highest works_count, then highest relevance_score.
     Returns a list of the top_k matches.
+    Also, it accumulates all search results into all_search_results_accumulator.
     """
     try:
         sleep(pyalex.config.retry_backoff_factor)  # Not sure pyalex does this *between* queries, so better add to be polite
-        authors_list = Authors().search(author_name).get()
+        # Perform the search using pyalex
+        authors_pager = Authors().search(author_name)
+        raw_results = authors_pager.get() # Get all results from the pager
+
+        # Ensure raw_results is a list, even if it's empty or contains non-dict items
+        # This was the original structure expected by sorted()
+        authors_list = [author for author in raw_results if isinstance(author, dict)] if raw_results else []
+
+
         if not authors_list:
+            all_search_results_accumulator[author_name] = []
             return [] if top_k > 1 else None
 
-        # Sort by relevance_score (descending) then by works_count (descending) then
-        # If these steps are taken in reverse, this MAY tend to return a different author. I do not actually have PROOF that this is the case (because what I thought it was turned out to be a different issue), but it just makes sense to me to first sort by relevance and then by the work count; I also assume that this is how the search mechanism is supposed to work on OpenAlex.
+        # Sort by relevance_score (descending) then by works_count (descending)
         sorted_authors = sorted(authors_list, key=lambda x: (x.get('relevance_score', 0), x.get('works_count', 0)), reverse=True)
 
-        # For debug
-        #logger.info("DEBUG: Full authors list:", *([{k: a.get(k) for k in ['id', 'display_name', 'relevance_score', 'works_count']} for a in sorted_authors]), sep='\n')
+        # Accumulate all sorted results for the current author name
+        all_search_results_accumulator[author_name] = sorted_authors
+
+        # For debug - original logging
+        # logger.info("DEBUG: Full authors list for %s:", author_name, *([{k: a.get(k) for k in ['id', 'display_name', 'relevance_score', 'works_count']} for a in sorted_authors]), sep='\n')
 
         if top_k == 1:
             return sorted_authors[0]['id'] if sorted_authors else None
@@ -71,6 +84,7 @@ def get_openalex_author_id(author_name, top_k=1):
             return [author['id'] for author in sorted_authors[:top_k]]
     except Exception as e:
         logger.error(f"Error querying OpenAlex for '{author_name}': {e}")
+        all_search_results_accumulator[author_name] = [] # Ensure key exists even on error
         return [] if top_k > 1 else None
 
 def load_parquet_to_dataframe(file_path):
@@ -91,6 +105,9 @@ def main():
     authors_parquet_path = os.getenv('AUTHORS_PARQUET_PATH')
     author_details_parquet_path = os.getenv('AUTHOR_DETAILS_PARQUET_PATH')
     output_csv_file = 'matched_authors_details.csv'
+    output_json_file = 'author_search_results.json' # Added JSON output filename
+
+    all_search_results = {} # Initialize accumulator for JSON output
 
     if not authors_parquet_path or not author_details_parquet_path:
         logger.error("Error: AUTHORS_PARQUET_PATH and AUTHOR_DETAILS_PARQUET_PATH must be set in .env file.")
@@ -104,13 +121,25 @@ def main():
 
     logger.info(f"Read {len(names_df)} names from {excel_file_path}")
 
-    # 2. Get OpenAlex IDs (top_k=1 by default)
-    names_df['openalex_id'] = names_df['name'].apply(get_openalex_author_id)
+    # 2. Get OpenAlex IDs (top_k=1 by default) and accumulate all search results
+    # Using a lambda to pass the accumulator to the modified get_openalex_author_id function
+    names_df['openalex_id'] = names_df['name'].apply(
+        lambda name: get_openalex_author_id(name, all_search_results, top_k=1)
+    )
     matched_df = names_df.dropna(subset=['openalex_id']).copy()
     logger.info(f"Found OpenAlex IDs for {len(matched_df)} names.")
 
+    # Save the accumulated search results to JSON
+    try:
+        with open(output_json_file, 'w') as f:
+            json.dump(all_search_results, f, indent=4)
+        logger.info(f"Successfully saved all author search results to {output_json_file}")
+    except Exception as e:
+        logger.error(f"Error saving author search results to JSON: {e}")
+
     if matched_df.empty:
-        logger.warning("No OpenAlex IDs found. Cannot proceed to fetch details. Exiting.")
+        logger.warning("No OpenAlex IDs found. Cannot proceed to fetch details for CSV. Exiting.")
+        # Still, the JSON file with empty results (if any searches were made) might have been created.
         return
 
     # 3. Load local Parquet files
