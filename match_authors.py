@@ -45,8 +45,12 @@ def get_openalex_author_id(author_name, top_k=1):
         if not authors_list:
             return [] if top_k > 1 else None
 
-        # Sort by works_count (descending) then by relevance_score (descending)
-        sorted_authors = sorted(authors_list, key=lambda x: (x.get('works_count', 0), x.get('relevance_score', 0)), reverse=True)
+        # Sort by relevance_score (descending) then by works_count (descending) then
+        # If these steps are taken in reverse, this MAY tend to return a different author. I do not actually have PROOF that this is the case (because what I thought it was turned out to be a different issue), but it just makes sense to me to first sort by relevance and then by the work count; I also assume that this is how the search mechanism is supposed to work on OpenAlex.
+        sorted_authors = sorted(authors_list, key=lambda x: (x.get('relevance_score', 0), x.get('works_count', 0)), reverse=True)
+
+        # For debug
+        print("DEBUG: Full authors list:", *([{k: a.get(k) for k in ['id', 'display_name', 'relevance_score', 'works_count']} for a in sorted_authors]), sep='\n')
 
         if top_k == 1:
             return sorted_authors[0]['id'] if sorted_authors else None
