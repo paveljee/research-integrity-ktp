@@ -18,8 +18,9 @@ def read_names_from_excel(file_path):
     try:
         df = pd.read_excel(file_path, sheet_name=0, engine='openpyxl')
         df.columns = [col.lower() for col in df.columns]
-        if 'name' not in df.columns:
-            raise ValueError("Excel file must contain a 'name' column (case-insensitive).")
+        if 'first name' not in df.columns or 'last name' not in df.columns:
+            raise ValueError("Excel file must contain name columns (case-insensitive).")
+        df['name'] = df['first name'].fillna('') + ' ' + df['last name'].fillna('')
         return df[['name']]
     except FileNotFoundError:
         print(f"Error: File not found at {file_path}")

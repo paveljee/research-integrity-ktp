@@ -49,9 +49,9 @@ def main_test_run():
     OUTPUT_DIR = "test_run_outputs"
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    excel_file_path = os.getenv('EXCEL_FILE_PATH')
-    authors_parquet_path = os.getenv('AUTHORS_PARQUET_PATH')
-    author_details_parquet_path = os.getenv('AUTHOR_DETAILS_PARQUET_PATH')
+    excel_file_path = os.getenv('EXCEL_FILE_PATH', 'dummy_data/dummy_names.xlsx')
+    authors_parquet_path = os.getenv('AUTHORS_PARQUET_PATH', 'dummy_data/dummy_authors.parquet')
+    author_details_parquet_path = os.getenv('AUTHOR_DETAILS_PARQUET_PATH', 'dummy_data/dummy_author_details.parquet')
 
     report_content = "# Test Run Report\n\n"
 
@@ -90,7 +90,7 @@ def main_test_run():
     report_content += "## Data Sampling and Matching\n"
     input_df = read_names_from_excel(excel_file_path)
     if input_df.empty or 'name' not in input_df.columns:
-        report_content += "- Error: Could not read 'name' column from Excel or Excel is empty.\n"
+        report_content += "- Error: Could not read name columns from Excel or Excel is empty.\n"
         with open(os.path.join(OUTPUT_DIR, "test_run_report.md"), "w") as f:
             f.write(report_content)
         print("Error reading Excel. Check report.")
