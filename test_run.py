@@ -297,7 +297,7 @@ def main_test_run():
             index=False,                # Don't include index column
             header=True,                # Include column names as header row
             encoding='utf-8-sig',       # UTF-8 with BOM (good for Excel)
-            line_terminator='\n',       # Newline after each row
+            lineterminator='\n',       # Newline after each row
             quoting=0,                  # csv.QUOTE_MINIMAL (default)
             quotechar='"',              # Quote character
             doublequote=True,           # Escape quotes with another quote
