@@ -113,6 +113,7 @@ def main_test_run(sample_n: int):
     overall_start_time = time.time()
 
     # Initialize or load the master knowledge graph once
+    t_start = time.time()
     g = Graph()
     if os.path.exists(MASTER_GRAPH_FILE):
         try:
@@ -123,6 +124,7 @@ def main_test_run(sample_n: int):
             # g is already an empty graph
     else:
         print("No existing master knowledge graph found. Initializing a new graph.")
+    timings["Master Graph Parsing"] = time.time() - t_start
 
     # Bind namespaces to the global graph instance early
     g.bind("sciscinet", SCISCINET)
@@ -149,9 +151,12 @@ def main_test_run(sample_n: int):
 
     # 1. Input File Stats
     report_content += "## Input Files Statistics\n"
+    t_start = time.time()
     excel_sha256 = calculate_sha256(excel_file_path)
     report_content += f"- Excel File (`{os.path.basename(excel_file_path)}`): SHA256 = `{excel_sha256}`\n"
+    timings["Input File Hashing"] = time.time() - t_start
 
+    t_start = time.time()
     authors_stats = get_parquet_stats(authors_parquet_path, "Authors Parquet")
     for key, value in authors_stats.items():
         if isinstance(value, dict): # Schema
@@ -160,7 +165,9 @@ def main_test_run(sample_n: int):
                 report_content += f"  - `{k}`: `{v}`\n"
         else:
             report_content += f"- {key}: `{value}`\n"
+    timings["Get Authors Parquet Stats"] = time.time() - t_start
 
+    t_start = time.time()
     author_details_stats = get_parquet_stats(author_details_parquet_path, "Author Details Parquet")
     for key, value in author_details_stats.items():
         if isinstance(value, dict): # Schema
@@ -169,6 +176,7 @@ def main_test_run(sample_n: int):
                 report_content += f"  - `{k}`: `{v}`\n"
         else:
             report_content += f"- {key}: `{value}`\n"
+    timings["Get Author Details Parquet Stats"] = time.time() - t_start
     report_content += "\n"
 
     # 2. Sample from Excel
