@@ -65,10 +65,11 @@ This script provides a mechanism to test the pipeline with a sample of data and 
     *   **Parquet File**: Saves the collated DataFrame (which includes all original Excel columns) to `test_run_outputs/collated_sample_data.parquet`.
     *   **RDF Turtle File**:
         *   Creates an RDF graph using `rdflib`.
-        *   Binds prefixes for `sciscinet` (custom), `openalex`, `schema` (Schema.org), `dcterms`, `foaf`, `owl`.
+        *   Binds prefixes for `sciscinet` (custom), `openalex`, `schema` (Schema.org), `dcterms`, `foaf`, `owl`, and `hcr` (a new custom namespace for Human Capital Record data from the input Excel).
         *   Populates the graph:
             *   Each matched author is represented as an `openalex:Author` and `sciscinet:Author`.
-            *   Properties from the collated DataFrame are added as RDF triples, using appropriate predicates from the defined ontologies (e.g., `schema:name`, `foaf:name`, `sciscinet:h_index`, `sciscinet:orcid`, `schema:affiliation`).
+            *   Properties from the collated DataFrame (SciSciNet stats, OpenAlex details) are added as RDF triples using appropriate predicates from the defined ontologies (e.g., `schema:name`, `foaf:name`, `sciscinet:h_index`, `sciscinet:orcid`, `schema:affiliation`).
+            *   Specific fields from the original input Excel (First Name, Last Name, Category, Primary Affiliation, Secondary Affiliation) are added using predicates from the new `hcr` namespace (e.g., `hcr:firstName`, `hcr:lastName`).
             *   OpenAlex IDs (which are URLs) are used as URIs for author entities. ORCID iDs are also added as `owl:sameAs` links.
             *   Includes robust handling for `display_name_alternatives` to process list-like or array-like data correctly during RDF triple generation.
         *   Saves the graph to `test_run_outputs/collated_sample_data.ttl`.
@@ -93,6 +94,13 @@ This script provides a mechanism to test the pipeline with a sample of data and 
 -   **Friend of a Friend (FOAF - `http://xmlns.com/foaf/0.1/`)**: For `foaf:name`.
 -   **Dublin Core Terms (DCTERMS - `http://purl.org/dc/terms/`)**: For `dcterms:modified`.
 -   **Web Ontology Language (OWL - `http://www.w3.org/2002/07/owl#`)**: For `owl:Class`, `owl:ObjectProperty`, `owl:DatatypeProperty`, `owl:sameAs`.
+-   **Human Capital Record (HCR - `http://example.org/hcr#`)**: A custom namespace introduced to model specific data fields directly from the input Excel file. It includes properties such as:
+    *   `hcr:firstName`
+    *   `hcr:lastName`
+    *   `hcr:category`
+    *   `hcr:primaryAffiliation`
+    *   `hcr:secondaryAffiliation`
+    These are defined as `owl:DatatypeProperty`.
 -   **RDF/RDFS**: Standard RDF and RDFS terms are used for graph structure (`rdf:type`, `rdfs:label`, `rdfs:subClassOf`, etc.).
 
 ## 4. Dependencies
@@ -279,12 +287,18 @@ The user subsequently requested further enhancements:
         *   The new pipeline execution timing details in the report.
         *   The enhanced RDF triple statistics in the report.
         *   Added this summary of the follow-up modifications to the "Code Generation and Session Log" section.
+7.  **Add HCR Ontology and Triples (Current Session Addendum)**:
+    *   Defined a new namespace `hcr` (`http://example.org/hcr#`).
+    *   Added `owl:DatatypeProperty` definitions for `hcr:firstName`, `hcr:lastName`, `hcr:category`, `hcr:primaryAffiliation`, `hcr:secondaryAffiliation`.
+    *   Modified the RDF generation logic in `test_run.py` to include triples for these HCR properties, sourcing data directly from the corresponding original Excel columns (`first name`, `last name`, etc.) for each matched author.
+    *   Updated the README (documentation for `hcr` ontology and its usage).
+    *   Ran tests to confirm the new triples appear in the output TTL and report.
 
 These changes were implemented sequentially, with Jules confirming each step. The focus remained on minimal and efficient code modifications as per the initial user directive.
 
 **Observations on AI Collaboration:**
 
-Jules demonstrated a strong ability to understand complex, multi-part requests and translate them into a structured plan. The AI was responsive to iterative feedback, incorporating new requirements. The implementation of efficient Parquet reading, detailed RDF generation, and the creation of this README were key contributions. The interactive debugging phase, though involving several steps, highlighted the AI's capability to analyze errors, propose solutions, and refine them until the issue was resolved, ultimately leading to a functional script and validated output. The AI also handled the creation of complex dummy data based on partial specifications and updated documentation post-hoc. The follow-up session further showcased Jules' ability to integrate new features systematically into the existing codebase and documentation.
+Jules demonstrated a strong ability to understand complex, multi-part requests and translate them into a structured plan. The AI was responsive to iterative feedback, incorporating new requirements. The implementation of efficient Parquet reading, detailed RDF generation, and the creation of this README were key contributions. The interactive debugging phase, though involving several steps, highlighted the AI's capability to analyze errors, propose solutions, and refine them until the issue was resolved, ultimately leading to a functional script and validated output. The AI also handled the creation of complex dummy data based on partial specifications and updated documentation post-hoc. The follow-up sessions further showcased Jules' ability to integrate new features systematically into the existing codebase and documentation.
 
 ## 7. Future Work
 

@@ -1,11 +1,27 @@
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix hcr: <http://example.org/hcr#> .
 @prefix openalex: <https://openalex.org/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix schema1: <http://schema.org/> .
 @prefix sciscinet: <http://sciscinet.org/ontology/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+hcr:category a owl:DatatypeProperty ;
+    rdfs:label "Category from HCR" .
+
+hcr:firstName a owl:DatatypeProperty ;
+    rdfs:label "First Name from HCR" .
+
+hcr:lastName a owl:DatatypeProperty ;
+    rdfs:label "Last Name from HCR" .
+
+hcr:primaryAffiliation a owl:DatatypeProperty ;
+    rdfs:label "Primary Affiliation from HCR" .
+
+hcr:secondaryAffiliation a owl:DatatypeProperty ;
+    rdfs:label "Secondary Affiliation from HCR" .
 
 sciscinet:hasOpenAlexID a owl:ObjectProperty ;
     rdfs:label "has OpenAlex ID" .
@@ -16,6 +32,11 @@ sciscinet:orcid a owl:DatatypeProperty ;
 openalex:A5027521767 a sciscinet:Author,
         openalex:Author ;
     rdfs:label "Author: Helder Pereira Borges (A5027521767)" ;
+    hcr:category "Some Branch of Sciences" ;
+    hcr:firstName "Helder Pereira" ;
+    hcr:lastName "Borges" ;
+    hcr:primaryAffiliation "University of Coimbra" ;
+    hcr:secondaryAffiliation "Coimbra Hospital and University Centre" ;
     dcterms:modified "2024-12-13T04:02:15.105592"^^xsd:dateTime ;
     schema1:affiliation "Institution I" ;
     schema1:alternateName "dummy display name alternative" ;
@@ -35,11 +56,19 @@ openalex:A5027521767 a sciscinet:Author,
 openalex:A5035513386 a sciscinet:Author,
         openalex:Author ;
     rdfs:label "Author: Koichi Naruse (A5035513386)" ;
+    hcr:category "Some Branch of Sciences" ;
+    hcr:firstName "Koichi" ;
+    hcr:lastName "Naruse" ;
+    hcr:primaryAffiliation "Kyoto University" ;
     schema1:name "Koichi Naruse" .
 
 openalex:A5041788323 a sciscinet:Author,
         openalex:Author ;
     rdfs:label "Author: Andrew W. Eckert (A5041788323)" ;
+    hcr:category "Some Branch of Sciences" ;
+    hcr:firstName "Andrew W." ;
+    hcr:lastName "Eckert" ;
+    hcr:primaryAffiliation "Scripps Research" ;
     dcterms:modified "2024-08-30T04:02:15.105592"^^xsd:dateTime ;
     schema1:affiliation "Institution H" ;
     schema1:alternateName "dummy display name alternative" ;
@@ -59,6 +88,10 @@ openalex:A5041788323 a sciscinet:Author,
 openalex:A5049341415 a sciscinet:Author,
         openalex:Author ;
     rdfs:label "Author: Yanhong Tan (A5049341415)" ;
+    hcr:category "Some Branch of Sciences" ;
+    hcr:firstName "Yanhong" ;
+    hcr:lastName "Tan" ;
+    hcr:primaryAffiliation "Peking University" ;
     dcterms:modified "2024-09-22T04:02:15.105592"^^xsd:dateTime ;
     schema1:affiliation "Institution F" ;
     schema1:alternateName "dummy display name alternative" ;
@@ -78,6 +111,10 @@ openalex:A5049341415 a sciscinet:Author,
 openalex:A5067996127 a sciscinet:Author,
         openalex:Author ;
     rdfs:label "Author: Charicklea Meleti (A5067996127)" ;
+    hcr:category "Some Branch of Sciences" ;
+    hcr:firstName "Charicklea" ;
+    hcr:lastName "Meleti" ;
+    hcr:primaryAffiliation "Aristotle University of Thessaloniki" ;
     dcterms:modified "2025-02-21T04:02:15.105592"^^xsd:dateTime ;
     schema1:affiliation "Institution C" ;
     schema1:alternateName "dummy display name alternative" ;
@@ -97,11 +134,20 @@ openalex:A5067996127 a sciscinet:Author,
 openalex:A5075522567 a sciscinet:Author,
         openalex:Author ;
     rdfs:label "Author: D. Simkovic (A5075522567)" ;
+    hcr:category "Some Branch of Sciences" ;
+    hcr:firstName "D." ;
+    hcr:lastName "Simkovic" ;
+    hcr:primaryAffiliation "Comenius University" ;
     schema1:name "D. Simkovic" .
 
 openalex:A5080312739 a sciscinet:Author,
         openalex:Author ;
     rdfs:label "Author: Javier Enrique Rivera Ramon (A5080312739)" ;
+    hcr:category "Some Branch of Sciences" ;
+    hcr:firstName "Javier Enrique" ;
+    hcr:lastName "Rivera Ramon" ;
+    hcr:primaryAffiliation "National University of Colombia" ;
+    hcr:secondaryAffiliation "Colombian Clinical Research Group" ;
     dcterms:modified "2024-11-08T04:02:15.105592"^^xsd:dateTime ;
     schema1:affiliation "Institution B" ;
     schema1:alternateName "dummy display name alternative" ;
@@ -121,6 +167,11 @@ openalex:A5080312739 a sciscinet:Author,
 openalex:A5083354159 a sciscinet:Author,
         openalex:Author ;
     rdfs:label "Author: Jan De Maeyer (A5083354159)" ;
+    hcr:category "Some Branch of Sciences" ;
+    hcr:firstName "Jan" ;
+    hcr:lastName "De Maeyer" ;
+    hcr:primaryAffiliation "KU Leuven" ;
+    hcr:secondaryAffiliation "Antwerp University" ;
     dcterms:modified "2024-11-14T04:02:15.105592"^^xsd:dateTime ;
     schema1:affiliation "Institution E" ;
     schema1:alternateName "dummy display name alternative" ;
@@ -140,6 +191,10 @@ openalex:A5083354159 a sciscinet:Author,
 openalex:A5110417312 a sciscinet:Author,
         openalex:Author ;
     rdfs:label "Author: Sodai Narumi (A5110417312)" ;
+    hcr:category "Some Branch of Sciences" ;
+    hcr:firstName "Sodai" ;
+    hcr:lastName "Narumi" ;
+    hcr:primaryAffiliation "University of Tokyo" ;
     dcterms:modified "2025-01-09T04:02:15.105592"^^xsd:dateTime ;
     schema1:affiliation "Institution A" ;
     schema1:alternateName "dummy display name alternative" ;

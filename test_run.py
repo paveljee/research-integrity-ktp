@@ -13,6 +13,7 @@ from match_authors import read_names_from_excel, get_openalex_author_id
 SCISCINET = Namespace("http://sciscinet.org/ontology/")
 OPENALEX = Namespace("https://openalex.org/")
 SCHEMA = Namespace("http://schema.org/") # Using schema.org for general properties
+HCR = Namespace("http://example.org/hcr#") # Human Capital Record ontology
 
 def calculate_sha256(file_path):
     """Calculates the SHA256 hash of a file."""
@@ -210,17 +211,31 @@ def main_test_run():
     g.bind("dcterms", DCTERMS)
     g.bind("foaf", FOAF)
     g.bind("owl", OWL)
+    g.bind("hcr", HCR)
 
     # Basic ontology statements (very minimal)
     g.add((SCISCINET.Author, RDF.type, OWL.Class))
     g.add((SCISCINET.Author, RDFS.label, Literal("SciSciNet Author")))
     g.add((OPENALEX.Author, RDF.type, OWL.Class))
     g.add((OPENALEX.Author, RDFS.label, Literal("OpenAlex Author Entity")))
-    g.add((SCISCINET.orcid, RDF.type, OWL.DatatypeProperty)) # Corrected from ObjectProperty
+
+    g.add((SCISCINET.orcid, RDF.type, OWL.DatatypeProperty))
     g.add((SCISCINET.orcid, RDFS.label, Literal("ORCID")))
     g.add((SCISCINET.hasOpenAlexID, RDF.type, OWL.ObjectProperty))
     g.add((SCISCINET.hasOpenAlexID, RDFS.label, Literal("has OpenAlex ID")))
 
+    # HCR Ontology definitions
+    hcr_props = {
+        "firstName": "First Name from HCR",
+        "lastName": "Last Name from HCR",
+        "category": "Category from HCR",
+        "primaryAffiliation": "Primary Affiliation from HCR",
+        "secondaryAffiliation": "Secondary Affiliation from HCR"
+    }
+    for prop_name, prop_label in hcr_props.items():
+        prop_uri = HCR[prop_name]
+        g.add((prop_uri, RDF.type, OWL.DatatypeProperty))
+        g.add((prop_uri, RDFS.label, Literal(prop_label)))
 
     for _, row in collated_df.iterrows():
         if pd.isna(row.get('openalex_id')):
@@ -298,6 +313,18 @@ def main_test_run():
             except: # Handle if date is not parsable
                 g.add((author_uri, DCTERMS.modified, Literal(str(row['updated_date']))))
 
+        # Add HCR data from original Excel columns
+        # Ensure column names here match the lowercased column names from read_excel
+        hcr_excel_mapping = {
+            "first name": HCR.firstName,
+            "last name": HCR.lastName,
+            "category": HCR.category,
+            "primary affiliation": HCR.primaryAffiliation,
+            "secondary affiliation": HCR.secondaryAffiliation,
+        }
+        for excel_col_name, hcr_predicate in hcr_excel_mapping.items():
+            if excel_col_name in row and pd.notna(row[excel_col_name]):
+                g.add((author_uri, hcr_predicate, Literal(row[excel_col_name])))
 
     rdf_file_path = os.path.join(OUTPUT_DIR, "collated_sample_data.ttl")
     try:

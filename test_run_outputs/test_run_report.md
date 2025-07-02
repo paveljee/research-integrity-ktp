@@ -42,12 +42,61 @@
 
 ## RDF Graph Generation
 - Successfully saved RDF graph to `test_run_outputs/collated_sample_data.ttl`.
-- RDF Graph contains 142 triples.
+- RDF Graph contains 191 triples.
 
 ### RDF Triple Statistics
-- Analyzing 17 unique predicates:
+- Analyzing 22 unique predicates:
 
-#### Predicate 1: `dcterms:modified`
+#### Predicate 1: `hcr:category`
+- Total occurrences: 9
+- **Non-Numeric Values Statistics:**
+  - Count of distinct values: 1
+  - Top 5 most frequent values:
+    - `Some Branch of Sciences`: 9 occurrences
+
+#### Predicate 2: `hcr:firstName`
+- Total occurrences: 9
+- **Non-Numeric Values Statistics:**
+  - Count of distinct values: 9
+  - Top 5 most frequent values:
+    - `Helder Pereira`: 1 occurrences
+    - `Javier Enrique`: 1 occurrences
+    - `Yanhong`: 1 occurrences
+    - `Sodai`: 1 occurrences
+    - `Andrew W.`: 1 occurrences
+
+#### Predicate 3: `hcr:lastName`
+- Total occurrences: 9
+- **Non-Numeric Values Statistics:**
+  - Count of distinct values: 9
+  - Top 5 most frequent values:
+    - `Borges`: 1 occurrences
+    - `Rivera Ramon`: 1 occurrences
+    - `Tan`: 1 occurrences
+    - `Narumi`: 1 occurrences
+    - `Eckert`: 1 occurrences
+
+#### Predicate 4: `hcr:primaryAffiliation`
+- Total occurrences: 9
+- **Non-Numeric Values Statistics:**
+  - Count of distinct values: 9
+  - Top 5 most frequent values:
+    - `University of Coimbra`: 1 occurrences
+    - `National University of Colombia`: 1 occurrences
+    - `Peking University`: 1 occurrences
+    - `University of Tokyo`: 1 occurrences
+    - `Scripps Research`: 1 occurrences
+
+#### Predicate 5: `hcr:secondaryAffiliation`
+- Total occurrences: 3
+- **Non-Numeric Values Statistics:**
+  - Count of distinct values: 3
+  - Top 5 most frequent values:
+    - `Coimbra Hospital and University Centre`: 1 occurrences
+    - `Colombian Clinical Research Group`: 1 occurrences
+    - `Antwerp University`: 1 occurrences
+
+#### Predicate 6: `dcterms:modified`
 - Total occurrences: 7
 - **Non-Numeric Values Statistics:**
   - Count of distinct values: 7
@@ -58,7 +107,7 @@
     - `2025-01-09 04:02:15.105592`: 1 occurrences
     - `2024-08-30 04:02:15.105592`: 1 occurrences
 
-#### Predicate 2: `schema1:affiliation`
+#### Predicate 7: `schema1:affiliation`
 - Total occurrences: 7
 - **Non-Numeric Values Statistics:**
   - Count of distinct values: 7
@@ -69,14 +118,14 @@
     - `Institution A`: 1 occurrences
     - `Institution H`: 1 occurrences
 
-#### Predicate 3: `schema1:alternateName`
+#### Predicate 8: `schema1:alternateName`
 - Total occurrences: 7
 - **Non-Numeric Values Statistics:**
   - Count of distinct values: 1
   - Top 5 most frequent values:
     - `dummy display name alternative`: 7 occurrences
 
-#### Predicate 4: `schema1:citation`
+#### Predicate 9: `schema1:citation`
 - Total occurrences: 7
 - **Numeric Values Statistics:**
   - Count: 7
@@ -85,7 +134,7 @@
   - Q1 (25th percentile): 1965.00
   - Q3 (75th percentile): 4406.00
 
-#### Predicate 5: `schema1:name`
+#### Predicate 10: `schema1:name`
 - Total occurrences: 9
 - **Non-Numeric Values Statistics:**
   - Count of distinct values: 9
@@ -96,7 +145,7 @@
     - `Sodai Narumi`: 1 occurrences
     - `Andrew W. Eckert`: 1 occurrences
 
-#### Predicate 6: `schema1:url`
+#### Predicate 11: `schema1:url`
 - Total occurrences: 7
 - **Non-Numeric Values Statistics:**
   - Count of distinct values: 7
@@ -107,7 +156,7 @@
     - `ns4:works`: 1 occurrences
     - `ns5:works`: 1 occurrences
 
-#### Predicate 7: `schema1:workExample`
+#### Predicate 12: `schema1:workExample`
 - Total occurrences: 7
 - **Numeric Values Statistics:**
   - Count: 7
@@ -116,7 +165,7 @@
   - Q1 (25th percentile): 84.00
   - Q3 (75th percentile): 160.00
 
-#### Predicate 8: `sciscinet:avg_c10`
+#### Predicate 13: `sciscinet:avg_c10`
 - Total occurrences: 7
 - **Numeric Values Statistics:**
   - Count: 7
@@ -125,7 +174,7 @@
   - Q1 (25th percentile): 1.28
   - Q3 (75th percentile): 8.30
 
-#### Predicate 9: `sciscinet:avg_logc10`
+#### Predicate 14: `sciscinet:avg_logc10`
 - Total occurrences: 7
 - **Numeric Values Statistics:**
   - Count: 7
@@ -134,7 +183,7 @@
   - Q1 (25th percentile): 3.70
   - Q3 (75th percentile): 4.42
 
-#### Predicate 10: `sciscinet:h_index`
+#### Predicate 15: `sciscinet:h_index`
 - Total occurrences: 7
 - **Numeric Values Statistics:**
   - Count: 7
@@ -143,7 +192,7 @@
   - Q1 (25th percentile): 8.50
   - Q3 (75th percentile): 41.50
 
-#### Predicate 11: `sciscinet:orcid`
+#### Predicate 16: `sciscinet:orcid`
 - Total occurrences: 7
 - **Non-Numeric Values Statistics:**
   - Count of distinct values: 7
@@ -154,7 +203,7 @@
     - `https://orcid.org/0000-0002-5830-4601`: 1 occurrences
     - `https://orcid.org/0000-0002-8821-9904`: 1 occurrences
 
-#### Predicate 12: `sciscinet:pgf_author`
+#### Predicate 17: `sciscinet:pgf_author`
 - Total occurrences: 7
 - **Numeric Values Statistics:**
   - Count: 7
@@ -163,7 +212,7 @@
   - Q1 (25th percentile): 0.42
   - Q3 (75th percentile): 0.74
 
-#### Predicate 13: `sciscinet:productivity`
+#### Predicate 18: `sciscinet:productivity`
 - Total occurrences: 7
 - **Numeric Values Statistics:**
   - Count: 7
@@ -172,29 +221,29 @@
   - Q1 (25th percentile): 1.77
   - Q3 (75th percentile): 3.64
 
-#### Predicate 14: `rdf:type`
-- Total occurrences: 22
+#### Predicate 19: `rdf:type`
+- Total occurrences: 27
 - **Non-Numeric Values Statistics:**
   - Count of distinct values: 5
   - Top 5 most frequent values:
     - `sciscinet:Author`: 9 occurrences
     - `openalex:Author`: 9 occurrences
+    - `owl:DatatypeProperty`: 6 occurrences
     - `owl:Class`: 2 occurrences
     - `owl:ObjectProperty`: 1 occurrences
-    - `owl:DatatypeProperty`: 1 occurrences
 
-#### Predicate 15: `rdfs:label`
-- Total occurrences: 13
+#### Predicate 20: `rdfs:label`
+- Total occurrences: 18
 - **Non-Numeric Values Statistics:**
-  - Count of distinct values: 13
+  - Count of distinct values: 18
   - Top 5 most frequent values:
     - `SciSciNet Author`: 1 occurrences
     - `OpenAlex Author Entity`: 1 occurrences
     - `ORCID`: 1 occurrences
     - `has OpenAlex ID`: 1 occurrences
-    - `Author: Helder Pereira Borges (A5027521767)`: 1 occurrences
+    - `First Name from HCR`: 1 occurrences
 
-#### Predicate 16: `owl:sameAs`
+#### Predicate 21: `owl:sameAs`
 - Total occurrences: 7
 - **Non-Numeric Values Statistics:**
   - Count of distinct values: 7
@@ -205,7 +254,7 @@
     - `ns8:0000-0002-5830-4601`: 1 occurrences
     - `ns8:0000-0002-8821-9904`: 1 occurrences
 
-#### Predicate 17: `foaf:name`
+#### Predicate 22: `foaf:name`
 - Total occurrences: 7
 - **Non-Numeric Values Statistics:**
   - Count of distinct values: 7
@@ -217,11 +266,11 @@
     - `Andrew W. Eckert`: 1 occurrences
 
 ## Pipeline Execution Timing
-- Excel Reading: 0.1990 seconds
-- OpenAlex API Interaction: 2.4521 seconds
-- Authors Parquet Reading: 0.0040 seconds
-- Author Details Parquet Reading: 0.0035 seconds
-- Data Collation: 0.0057 seconds
-- Collated Parquet Saving: 0.0060 seconds
-- RDF Generation and Serialization: 0.0453 seconds
-- **Overall Script**: 2.7677 seconds
+- Excel Reading: 0.2483 seconds
+- OpenAlex API Interaction: 2.5094 seconds
+- Authors Parquet Reading: 0.0090 seconds
+- Author Details Parquet Reading: 0.0050 seconds
+- Data Collation: 0.0092 seconds
+- Collated Parquet Saving: 0.0114 seconds
+- RDF Generation and Serialization: 0.0625 seconds
+- **Overall Script**: 2.9349 seconds
