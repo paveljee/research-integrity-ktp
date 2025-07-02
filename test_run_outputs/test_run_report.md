@@ -31,239 +31,245 @@
 
 ## Data Sampling and Matching
 - Total names in Excel: 6886
-- Sampled 10 names (random_state=42).
+- Sampled 50 names (random_state=42).
 - Finding OpenAlex IDs (top_k=1, highest relevance only).
-- Found 10 unique OpenAlex IDs for the sample.
+- Found 50 unique OpenAlex IDs for the sample.
 - Loading data from Parquet files for matched OpenAlex IDs.
-- Successfully read 10 matching records from authors parquet.
-- Successfully read 10 matching records from author details parquet.
-- Collated DataFrame has 10 rows and 23 columns.
+- Successfully read 50 matching records from authors parquet.
+- Successfully read 50 matching records from author details parquet.
+- Collated DataFrame has 50 rows and 23 columns.
 - Successfully saved collated data to `test_run_outputs/collated_sample_data.parquet`.
 
 ## RDF Graph Generation
 - Successfully saved RDF graph to `test_run_outputs/collated_sample_data.ttl`.
-- RDF Graph contains 228 triples.
+- RDF Graph contains 1074 triples.
 
 ### RDF Triple Statistics
 - Analyzing 21 unique predicates:
 
 #### Predicate 1: `hcr:category`
-- Total occurrences: 10
+- Total occurrences: 50
 - **Non-Numeric Values Statistics:**
-  - Count of distinct values: 3
+  - Count of distinct values: 12
   - Top 5 most frequent values:
-    - `Cross-Field`: 7 occurrences
-    - `Materials Science`: 2 occurrences
-    - `Economics and Business`: 1 occurrences
+    - `Cross-Field`: 28 occurrences
+    - `Materials Science`: 4 occurrences
+    - `Clinical Medicine`: 4 occurrences
+    - `Social Sciences`: 3 occurrences
+    - `Plant and Animal Science`: 2 occurrences
 
 #### Predicate 2: `hcr:firstName`
-- Total occurrences: 10
+- Total occurrences: 50
 - **Non-Numeric Values Statistics:**
-  - Count of distinct values: 10
+  - Count of distinct values: 50
   - Top 5 most frequent values:
     - `Michael A.`: 1 occurrences
-    - `Ajayan`: 1 occurrences
-    - `James E.`: 1 occurrences
-    - `Yi`: 1 occurrences
-    - `Vinit`: 1 occurrences
+    - `Mohammad Hassan`: 1 occurrences
+    - `Jean Claude`: 1 occurrences
+    - `Xiangming`: 1 occurrences
+    - `Paul D.`: 1 occurrences
 
 #### Predicate 3: `hcr:lastName`
-- Total occurrences: 10
+- Total occurrences: 50
 - **Non-Numeric Values Statistics:**
-  - Count of distinct values: 10
+  - Count of distinct values: 48
   - Top 5 most frequent values:
+    - `Li`: 2 occurrences
+    - `Wang`: 2 occurrences
     - `Angelo`: 1 occurrences
-    - `Vinu`: 1 occurrences
-    - `Crowe Jr.`: 1 occurrences
-    - `Luo`: 1 occurrences
-    - `Parida`: 1 occurrences
+    - `Xie`: 1 occurrences
+    - `Moubarac`: 1 occurrences
 
 #### Predicate 4: `hcr:primaryAffiliation`
-- Total occurrences: 10
+- Total occurrences: 50
 - **Non-Numeric Values Statistics:**
-  - Count of distinct values: 8
+  - Count of distinct values: 43
   - Top 5 most frequent values:
-    - `Stanford University, United States`: 3 occurrences
-    - `University of Newcastle, Australia`: 1 occurrences
-    - `Universite Paris Cite, France`: 1 occurrences
-    - `University of Science & Technology of China CAS, China Mainland`: 1 occurrences
-    - `Lulea University of Technology, Sweden`: 1 occurrences
+    - `Stanford University, United States`: 4 occurrences
+    - `Chinese Academy of Sciences, China Mainland`: 3 occurrences
+    - `King's College London, United Kingdom`: 2 occurrences
+    - `City University of Hong Kong, Hong Kong SAR`: 2 occurrences
+    - `University of Technology Sydney, Australia`: 1 occurrences
 
 #### Predicate 5: `hcr:secondaryAffiliation`
-- Total occurrences: 1
+- Total occurrences: 12
 - **Non-Numeric Values Statistics:**
-  - Count of distinct values: 1
+  - Count of distinct values: 12
   - Top 5 most frequent values:
     - `University of Oxford, United Kingdom`: 1 occurrences
+    - `Utrecht University, Netherlands`: 1 occurrences
+    - `Guy's & St Thomas' NHS Foundation Trust, United Kingdom`: 1 occurrences
+    - `Centre Hospitalier Universitaire Vaudois (CHUV), Switzerland`: 1 occurrences
+    - `FACIT.org, United States`: 1 occurrences
 
 #### Predicate 6: `dcterms:modified`
-- Total occurrences: 10
+- Total occurrences: 50
 - **Non-Numeric Values Statistics:**
-  - Count of distinct values: 10
+  - Count of distinct values: 50
   - Top 5 most frequent values:
     - `2024-12-25 19:52:34.464423`: 1 occurrences
-    - `2024-12-28 11:49:58.992909`: 1 occurrences
-    - `2024-12-28 02:03:56.614912`: 1 occurrences
-    - `2024-12-29 19:40:05.347147`: 1 occurrences
-    - `2024-12-29 18:07:02.152738`: 1 occurrences
+    - `2024-12-29 13:55:16.280992`: 1 occurrences
+    - `2024-12-27 23:52:27.985217`: 1 occurrences
+    - `2024-12-30 13:12:20.673982`: 1 occurrences
+    - `2024-12-28 14:50:45.720831`: 1 occurrences
 
 #### Predicate 7: `schema1:alternateName`
-- Total occurrences: 10
+- Total occurrences: 50
 - **Non-Numeric Values Statistics:**
-  - Count of distinct values: 10
+  - Count of distinct values: 50
   - Top 5 most frequent values:
     - `["M Angelo", "Michael Angelo", "R. Michael Angelo", "Mike Angelo", "M. angelo", "Michael R. Angelo", "Robert Michael Angelo", "Robert M. Angelo"]`: 1 occurrences
-    - `["A. Vinu", "A. K. Vinu", "Ajayan Vinu"]`: 1 occurrences
-    - `["JamesE. Crowe", "J. Crowe", "James. E. Crowe", "James E. Crowe", "J CROWEJR", "James Crowe", "J. E. Crowe", "J.E Crowe", "Crowe Je", "Jim Crowe", "James E. Crowe, Jr."]`: 1 occurrences
-    - `["Luo Y", "Yi Luo", "Y. Luo", "罗毅", "Luo Yi", "Y.M. Luo"]`: 1 occurrences
-    - `["V. Parida", "Vinit Parida", "Vinit Parida"]`: 1 occurrences
+    - `["M. H. Murad", "Mohammed Murad", "Mohammed Hassan Murad", "M H. Murad", "Murad M. Hassan", "Muhammad Hiqmal Murad", "M. Hassan Murad", "Murad Mh", "Mchammad Hassan Murad", "Hassan Murad", "Mohammad Murad", "H. Murad", "MohammadHassan. Murad", "Mohammad Hassan Murad", "MohammadH Murad", "Hassan M. Murad", "Mohammed H. Murad", "Mohammad H. Murad", "M. Murad"]`: 1 occurrences
+    - `["Moubarac Jean‐Claude", "Jean‐Claude Moubarac"]`: 1 occurrences
+    - `["Lulin Shen", "HE Xiang‐Ming", "Mu Xin Gao Jian", "Cheng Xin‐Qun", "HE Xiang‐ming", "Musheng Yin", "X. He", "X. ‐M. He", "Xiang‐Ming He", "L. Shen", "Zhenjiang He", "He", "Zhengping Luo", "Xiangming He", "Zhong ShengKui", "Xiang He", "Xiang Ming He", "X. M. He", "He Xiangming", "He, X. M."]`: 1 occurrences
+    - `["P. D. Robbins", "P.D Robbins", "P D. Robbins", "P. Robbins", "Paul Robbins", "P. David Robbins", "Pd Robbins", "Paul D. Robbins"]`: 1 occurrences
 
 #### Predicate 8: `schema1:citation`
-- Total occurrences: 10
+- Total occurrences: 50
 - **Numeric Values Statistics:**
-  - Count: 10
-  - Mean: 34830.20
-  - Median: 33312.00
-  - Q1 (25th percentile): 18877.00
-  - Q3 (75th percentile): 37709.75
+  - Count: 50
+  - Mean: 50795.38
+  - Median: 31698.50
+  - Q1 (25th percentile): 16124.50
+  - Q3 (75th percentile): 73697.50
 
 #### Predicate 9: `schema1:name`
-- Total occurrences: 10
+- Total occurrences: 50
 - **Non-Numeric Values Statistics:**
-  - Count of distinct values: 10
+  - Count of distinct values: 50
   - Top 5 most frequent values:
     - `Michael Angelo`: 1 occurrences
-    - `Ajayan Vinu`: 1 occurrences
-    - `James Crowe Jr.`: 1 occurrences
-    - `Yi Luo`: 1 occurrences
-    - `Vinit Parida`: 1 occurrences
+    - `Mohammad Murad`: 1 occurrences
+    - `Jean Moubarac`: 1 occurrences
+    - `Xiangming He`: 1 occurrences
+    - `Paul Robbins`: 1 occurrences
 
 #### Predicate 10: `schema1:url`
-- Total occurrences: 10
+- Total occurrences: 50
 - **Non-Numeric Values Statistics:**
-  - Count of distinct values: 10
+  - Count of distinct values: 50
   - Top 5 most frequent values:
     - `ns1:A5003323350`: 1 occurrences
-    - `ns1:A5015562487`: 1 occurrences
-    - `ns1:A5046971682`: 1 occurrences
-    - `ns1:A5057282533`: 1 occurrences
-    - `ns1:A5090362709`: 1 occurrences
+    - `ns1:A5054802858`: 1 occurrences
+    - `ns1:A5027132612`: 1 occurrences
+    - `ns1:A5100637063`: 1 occurrences
+    - `ns1:A5040467127`: 1 occurrences
 
 #### Predicate 11: `schema1:workExample`
-- Total occurrences: 10
+- Total occurrences: 50
 - **Numeric Values Statistics:**
-  - Count: 10
-  - Mean: 702.80
-  - Median: 624.00
-  - Q1 (25th percentile): 321.25
-  - Q3 (75th percentile): 1196.75
+  - Count: 50
+  - Mean: 672.00
+  - Median: 468.00
+  - Q1 (25th percentile): 324.75
+  - Q3 (75th percentile): 861.50
 
 #### Predicate 12: `sciscinet:avg_c10`
-- Total occurrences: 10
+- Total occurrences: 50
 - **Numeric Values Statistics:**
-  - Count: 10
-  - Mean: 62.42
-  - Median: 56.37
-  - Q1 (25th percentile): 42.82
-  - Q3 (75th percentile): 65.53
+  - Count: 50
+  - Mean: 83.46
+  - Median: 58.68
+  - Q1 (25th percentile): 39.43
+  - Q3 (75th percentile): 93.31
 
 #### Predicate 13: `sciscinet:avg_logc10`
-- Total occurrences: 10
+- Total occurrences: 50
 - **Numeric Values Statistics:**
-  - Count: 10
-  - Mean: 2.50
-  - Median: 2.42
-  - Q1 (25th percentile): 2.05
-  - Q3 (75th percentile): 2.92
+  - Count: 50
+  - Mean: 2.61
+  - Median: 2.50
+  - Q1 (25th percentile): 2.18
+  - Q3 (75th percentile): 2.97
 
 #### Predicate 14: `sciscinet:h_index`
-- Total occurrences: 10
+- Total occurrences: 50
 - **Numeric Values Statistics:**
-  - Count: 10
-  - Mean: 101.90
-  - Median: 101.50
-  - Q1 (25th percentile): 75.50
-  - Q3 (75th percentile): 135.25
+  - Count: 50
+  - Mean: 111.76
+  - Median: 98.50
+  - Q1 (25th percentile): 70.00
+  - Q3 (75th percentile): 148.75
 
 #### Predicate 15: `sciscinet:orcid`
-- Total occurrences: 10
+- Total occurrences: 48
 - **Non-Numeric Values Statistics:**
-  - Count of distinct values: 10
+  - Count of distinct values: 48
   - Top 5 most frequent values:
     - `https://orcid.org/0000-0003-1531-5067`: 1 occurrences
     - `https://orcid.org/0000-0002-7508-251X`: 1 occurrences
-    - `https://orcid.org/0000-0002-0049-1079`: 1 occurrences
-    - `https://orcid.org/0000-0003-0007-0394`: 1 occurrences
-    - `https://orcid.org/0000-0003-3255-414X`: 1 occurrences
+    - `https://orcid.org/0000-0001-8409-7855`: 1 occurrences
+    - `https://orcid.org/0000-0001-7146-4097`: 1 occurrences
+    - `https://orcid.org/0000-0003-1068-7099`: 1 occurrences
 
 #### Predicate 16: `sciscinet:pgf_author`
-- Total occurrences: 9
+- Total occurrences: 48
 - **Numeric Values Statistics:**
-  - Count: 9
-  - Mean: 0.04
+  - Count: 48
+  - Mean: 0.17
   - Median: 0.00
   - Q1 (25th percentile): 0.00
-  - Q3 (75th percentile): 0.00
+  - Q3 (75th percentile): 0.26
 
 #### Predicate 17: `sciscinet:productivity`
-- Total occurrences: 10
+- Total occurrences: 50
 - **Numeric Values Statistics:**
-  - Count: 10
-  - Mean: 681.50
-  - Median: 606.50
-  - Q1 (25th percentile): 322.25
-  - Q3 (75th percentile): 1139.75
+  - Count: 50
+  - Mean: 646.12
+  - Median: 449.50
+  - Q1 (25th percentile): 316.00
+  - Q3 (75th percentile): 810.50
 
 #### Predicate 18: `rdf:type`
-- Total occurrences: 29
+- Total occurrences: 109
 - **Non-Numeric Values Statistics:**
   - Count of distinct values: 5
   - Top 5 most frequent values:
-    - `openalex:Author`: 10 occurrences
-    - `sciscinet:Author`: 10 occurrences
+    - `openalex:Author`: 50 occurrences
+    - `sciscinet:Author`: 50 occurrences
     - `owl:DatatypeProperty`: 6 occurrences
     - `owl:Class`: 2 occurrences
     - `owl:ObjectProperty`: 1 occurrences
 
 #### Predicate 19: `rdfs:label`
-- Total occurrences: 19
+- Total occurrences: 59
 - **Non-Numeric Values Statistics:**
-  - Count of distinct values: 19
+  - Count of distinct values: 59
   - Top 5 most frequent values:
     - `SciSciNet Author`: 1 occurrences
-    - `Author: Ajayan Vinu (A5015562487)`: 1 occurrences
-    - `Author: Ayyoob Sharifi (A5002835698)`: 1 occurrences
-    - `Author: Iain McCulloch (A5034296749)`: 1 occurrences
-    - `Author: Sanjiv Gambhir (A5019955301)`: 1 occurrences
+    - `Author: Wolfgang Fendler (A5062907808)`: 1 occurrences
+    - `Author: Hin-Lap Yip (A5006899454)`: 1 occurrences
+    - `Author: Yu-Guo Guo (A5070372567)`: 1 occurrences
+    - `Author: Xiong Lou (A5032280861)`: 1 occurrences
 
 #### Predicate 20: `owl:sameAs`
-- Total occurrences: 10
+- Total occurrences: 48
 - **Non-Numeric Values Statistics:**
-  - Count of distinct values: 10
+  - Count of distinct values: 48
   - Top 5 most frequent values:
     - `ns2:0000-0003-1531-5067`: 1 occurrences
     - `ns2:0000-0002-7508-251X`: 1 occurrences
-    - `ns2:0000-0002-0049-1079`: 1 occurrences
-    - `ns2:0000-0003-0007-0394`: 1 occurrences
-    - `ns2:0000-0003-3255-414X`: 1 occurrences
+    - `ns2:0000-0001-8409-7855`: 1 occurrences
+    - `ns2:0000-0001-7146-4097`: 1 occurrences
+    - `ns2:0000-0003-1068-7099`: 1 occurrences
 
 #### Predicate 21: `foaf:name`
-- Total occurrences: 10
+- Total occurrences: 50
 - **Non-Numeric Values Statistics:**
-  - Count of distinct values: 10
+  - Count of distinct values: 50
   - Top 5 most frequent values:
     - `Michael Angelo`: 1 occurrences
-    - `Ajayan Vinu`: 1 occurrences
-    - `James E. Crowe`: 1 occurrences
-    - `Yi Luo`: 1 occurrences
-    - `Vinit Parida`: 1 occurrences
+    - `M. Hassan Murad`: 1 occurrences
+    - `Jean‐Claude Moubarac`: 1 occurrences
+    - `Xiangming He`: 1 occurrences
+    - `Paul D. Robbins`: 1 occurrences
 
 ## Pipeline Execution Timing
-- Excel Reading: 1.5958 seconds
-- OpenAlex API Interaction: 3.4494 seconds
-- Authors Parquet Reading: 16.2139 seconds
-- Author Details Parquet Reading: 15.6479 seconds
-- Data Collation: 0.0250 seconds
-- Collated Parquet Saving: 0.0562 seconds
-- RDF Generation and Serialization: 0.0858 seconds
-- **Overall Script**: 74.2919 seconds
+- Excel Reading: 0.3086 seconds
+- OpenAlex API Interaction: 23.6355 seconds
+- Authors Parquet Reading: 4.7659 seconds
+- Author Details Parquet Reading: 5.3097 seconds
+- Data Collation: 0.0273 seconds
+- Collated Parquet Saving: 0.0287 seconds
+- RDF Generation and Serialization: 0.0621 seconds
+- **Overall Script**: 47.1517 seconds
