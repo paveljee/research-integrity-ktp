@@ -20,9 +20,19 @@ def read_names_from_excel(file_path):
         df.columns = [col.lower() for col in df.columns]
         if 'first name' not in df.columns or 'last name' not in df.columns:
             # Still create the 'name' column for matching, but return the whole df
-            df['name'] = df.get('first name', pd.Series(dtype='str')).fillna('') + ' ' + df.get('last name', pd.Series(dtype='str')).fillna('')
+            raise Exception('Expected columns were not found in the Excel file.')
         elif 'name' not in df.columns: # If 'name' column is not present, but 'first name' and 'last name' are
-            df['name'] = df['first name'].fillna('') + ' ' + df['last name'].fillna('')
+            first_name_series = df.get('first name', pd.Series(dtype='str')).fillna('')
+            # The next line is quite important because otherwise known to return inappropriate matches from OpenAlex. Example: 'Michael A. Angelo' returns:
+            # {'id': 'https://openalex.org/A5000260833', 'display_name': 'Michael A. Palladino', 'relevance_score': 5914.333, 'works_count': 303}
+            # {'id': 'https://openalex.org/A5084307622', 'display_name': 'Michael A. Angelo', 'relevance_score': 5638.3184, 'works_count': 22}
+            # NOT returns the actual correct author:
+            # {'id': 'https://openalex.org/A5003323350', 'display_name': 'Michael Angelo', 'relevance_score': 11336.466, 'works_count': 138}
+            # It MAY still be the case that for some other authors, removing the middle name can actually lead to the same thing, but saw no evidence of that yet.
+            cleaned_first_name_series = first_name_series.str.split().str[0]
+            last_name_series = df.get('last name', pd.Series(dtype='str')).fillna('')
+            cleaned_last_name_series = last_name_series  # no cleaning ops
+            df['name'] = cleaned_first_name_series + ' ' + cleaned_last_name_series
         # If 'name' column already exists, use it as is.
         # If none of ('first name', 'last name') or 'name' exist, it will be handled by downstream checks or fail.
         return df
