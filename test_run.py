@@ -192,7 +192,7 @@ def main_test_run():
     timings["Data Collation"] = time.time() - t_start
     report_content += f"- Collated DataFrame has {len(collated_df)} rows and {len(collated_df.columns)} columns.\n"
 
-    # 6. Save collated DataFrame to Parquet
+    # 6a. Save collated DataFrame to Parquet
     collated_parquet_path = os.path.join(OUTPUT_DATA_DIR, "collated_sample_data.parquet")
     t_start = time.time()
     try:
@@ -201,6 +201,29 @@ def main_test_run():
     except Exception as e:
         report_content += f"- Error saving collated data to Parquet: {e}\n"
     timings["Collated Parquet Saving"] = time.time() - t_start
+
+    # 6b. Save collated DataFrame to CSV
+    collated_csv_path = os.path.join(OUTPUT_DATA_DIR, "collated_sample_data.csv")
+    t_start = time.time()
+    try:
+        collated_df.to_csv(
+            path_or_buf=collated_csv_path,
+            sep=',',                    # CSV separator
+            index=False,                # Don't include index column
+            header=True,                # Include column names as header row
+            encoding='utf-8-sig',       # UTF-8 with BOM (good for Excel)
+            line_terminator='\n',       # Newline after each row
+            quoting=0,                  # csv.QUOTE_MINIMAL (default)
+            quotechar='"',              # Quote character
+            doublequote=True,           # Escape quotes with another quote
+            escapechar=None,            # No escape char
+            date_format='%Y-%m-%d',     # Optional: format datetime columns
+            na_rep=''                   # Replace NaNs with empty string
+        )
+        report_content += f"- Successfully saved collated data to `{collated_csv_path}`.\n"
+    except Exception as e:
+        report_content += f"- Error saving collated data to CSV: {e}\n"
+    timings["Collated CSV Saving"] = time.time() - t_start
 
 
     # 7. Save to RDF Turtle
