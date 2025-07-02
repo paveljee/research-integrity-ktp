@@ -3,3 +3,4 @@ untracked/
 __pycache__
 .env
 data/
+logs/

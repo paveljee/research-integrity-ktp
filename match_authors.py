@@ -9,6 +9,9 @@ from pyalex import Authors
 import os
 from dotenv import load_dotenv
 from time import sleep
+from loggers import get_logger
+
+logger = get_logger(__name__)
 
 # Optional: Set your email for OpenAlex API polite pool
 pyalex.config.email = os.getenv('OPENALEX_EMAIL')
@@ -37,10 +40,10 @@ def read_names_from_excel(file_path):
         # If none of ('first name', 'last name') or 'name' exist, it will be handled by downstream checks or fail.
         return df
     except FileNotFoundError:
-        print(f"Error: File not found at {file_path}")
+        logger.error(f"Error: File not found at {file_path}")
         return pd.DataFrame()
     except Exception as e:
-        print(f"Error reading Excel file: {e}")
+        logger.error(f"Error reading Excel file: {e}")
         return pd.DataFrame({'name': []})
 
 def get_openalex_author_id(author_name, top_k=1):
@@ -60,14 +63,14 @@ def get_openalex_author_id(author_name, top_k=1):
         sorted_authors = sorted(authors_list, key=lambda x: (x.get('relevance_score', 0), x.get('works_count', 0)), reverse=True)
 
         # For debug
-        #print("DEBUG: Full authors list:", *([{k: a.get(k) for k in ['id', 'display_name', 'relevance_score', 'works_count']} for a in sorted_authors]), sep='\n')
+        #logger.info("DEBUG: Full authors list:", *([{k: a.get(k) for k in ['id', 'display_name', 'relevance_score', 'works_count']} for a in sorted_authors]), sep='\n')
 
         if top_k == 1:
             return sorted_authors[0]['id'] if sorted_authors else None
         else:
             return [author['id'] for author in sorted_authors[:top_k]]
     except Exception as e:
-        print(f"Error querying OpenAlex for '{author_name}': {e}")
+        logger.error(f"Error querying OpenAlex for '{author_name}': {e}")
         return [] if top_k > 1 else None
 
 def load_parquet_to_dataframe(file_path):
@@ -75,10 +78,10 @@ def load_parquet_to_dataframe(file_path):
     try:
         return pd.read_parquet(file_path)
     except FileNotFoundError:
-        print(f"Error: Parquet file not found at {file_path}")
+        logger.error(f"Error: Parquet file not found at {file_path}")
         return pd.DataFrame()
     except Exception as e:
-        print(f"Error reading Parquet file from {file_path}: {e}")
+        logger.error(f"Error reading Parquet file from {file_path}: {e}")
         return pd.DataFrame()
 
 def main():
@@ -90,36 +93,36 @@ def main():
     output_csv_file = 'matched_authors_details.csv'
 
     if not authors_parquet_path or not author_details_parquet_path:
-        print("Error: AUTHORS_PARQUET_PATH and AUTHOR_DETAILS_PARQUET_PATH must be set in .env file.")
+        logger.error("Error: AUTHORS_PARQUET_PATH and AUTHOR_DETAILS_PARQUET_PATH must be set in .env file.")
         return
 
     # 1. Read names from Excel
     names_df = read_names_from_excel(excel_file_path)
     if names_df.empty:
-        print("No names to process. Exiting.")
+        logger.warning("No names to process. Exiting.")
         return
 
-    print(f"Read {len(names_df)} names from {excel_file_path}")
+    logger.info(f"Read {len(names_df)} names from {excel_file_path}")
 
     # 2. Get OpenAlex IDs (top_k=1 by default)
     names_df['openalex_id'] = names_df['name'].apply(get_openalex_author_id)
     matched_df = names_df.dropna(subset=['openalex_id']).copy()
-    print(f"Found OpenAlex IDs for {len(matched_df)} names.")
+    logger.info(f"Found OpenAlex IDs for {len(matched_df)} names.")
 
     if matched_df.empty:
-        print("No OpenAlex IDs found. Cannot proceed to fetch details. Exiting.")
+        logger.warning("No OpenAlex IDs found. Cannot proceed to fetch details. Exiting.")
         return
 
     # 3. Load local Parquet files
-    print(f"Loading Parquet files: {authors_parquet_path}, {author_details_parquet_path}")
+    logger.info(f"Loading Parquet files: {authors_parquet_path}, {author_details_parquet_path}")
     authors_df = load_parquet_to_dataframe(authors_parquet_path)
     author_details_df = load_parquet_to_dataframe(author_details_parquet_path)
 
     if authors_df.empty or author_details_df.empty:
-        print("One or both Parquet files failed to load or are empty. Exiting.")
+        logger.warning("One or both Parquet files failed to load or are empty. Exiting.")
         return
 
-    print(f"Loaded authors_df ({len(authors_df)} rows) and author_details_df ({len(author_details_df)} rows).")
+    logger.info(f"Loaded authors_df ({len(authors_df)} rows) and author_details_df ({len(author_details_df)} rows).")
 
     # Prepare for merge by extracting short ID
     matched_df['openalex_id_short'] = matched_df['openalex_id'].apply(lambda x: x.split('/')[-1] if pd.notnull(x) else None)
@@ -127,15 +130,15 @@ def main():
     # Merge with authors data
     # Ensure correct column names based on provided schema for authors_df: ['authorid', ...]
     if 'authorid' not in authors_df.columns:
-        print("Error: 'authorid' column not found in authors Parquet. Check schema.")
+        logger.error("Error: 'authorid' column not found in authors Parquet. Check schema.")
         return
     final_df = pd.merge(matched_df, authors_df, left_on='openalex_id_short', right_on='authorid', how='left')
-    print("Merged with authors data.")
+    logger.info("Merged with authors data.")
 
     # Merge with author_details data
     # Ensure correct column names for author_details_df: ['authorid', ...]
     if 'authorid' not in author_details_df.columns:
-        print("Error: 'authorid' column not found in author_details Parquet. Check schema.")
+        logger.error("Error: 'authorid' column not found in author_details Parquet. Check schema.")
         # If merging with authors_df failed, final_df might not have 'authorid' from it.
         # However, the check above is for author_details_df itself.
         # If authors_df merge was successful, 'authorid' (from authors_df) is the correct right_on key.
@@ -146,20 +149,20 @@ def main():
     # Otherwise, if 'openalex_id_short' is still the primary key from matched_df, use that.
     # Given the schemas, both Parquet files use 'authorid'.
     final_df = pd.merge(final_df, author_details_df, on='authorid', how='left', suffixes=('_authors', '_details'))
-    print("Merged with author details data.")
+    logger.info("Merged with author details data.")
 
     # Clean up: remove redundant openalex_id_short if authorid exists and is preferred
     if 'authorid' in final_df.columns:
         final_df.drop(columns=['openalex_id_short'], inplace=True, errors='ignore')
 
-    print(f"Resulting DataFrame has {len(final_df)} rows before saving.")
+    logger.info(f"Resulting DataFrame has {len(final_df)} rows before saving.")
 
     # 4. Save to CSV
     try:
         final_df.to_csv(output_csv_file, index=False)
-        print(f"Successfully saved detailed matched author data to {output_csv_file}")
+        logger.info(f"Successfully saved detailed matched author data to {output_csv_file}")
     except Exception as e:
-        print(f"Error saving data to CSV: {e}")
+        logger.error(f"Error saving data to CSV: {e}")
 
 if __name__ == "__main__":
     main()

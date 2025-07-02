@@ -10,6 +10,9 @@ from rdflib import Graph, Literal, Namespace, URIRef
 from rdflib.namespace import RDF, RDFS, XSD, DCTERMS, FOAF, OWL
 from match_authors import read_names_from_excel, get_openalex_author_id
 import argparse
+from loggers import get_logger
+
+logger = get_logger(__name__)
 
 # Define Namespaces
 SCISCINET = Namespace("http://sciscinet.org/ontology/")
@@ -46,7 +49,7 @@ def get_parquet_stats(file_path, file_name_for_report):
     # Let's assume a sub-directory within "test_run_outputs/data" for caches.
     cache_dir = os.path.join("test_run_outputs", "data", "parquet_stats_cache")
     os.makedirs(cache_dir, exist_ok=True)
-    cache_file_path = os.path.join(cache_dir, f"{current_hash}.json")
+    cache_file_path = os.path.join(cache_dir, f"{current_hash[:8]}.json")
 
     # Try to load from cache
     if os.path.exists(cache_file_path):
@@ -57,23 +60,23 @@ def get_parquet_stats(file_path, file_name_for_report):
             # The SHA256 key in stats dict is like: "Authors Parquet SHA256"
             cached_file_hash_key = f"{file_name_for_report} SHA256"
             if cached_stats.get(cached_file_hash_key) == current_hash:
-                # print(f"Loaded stats from cache for {file_name_for_report} ({file_path})")
+                logger.info(f"Loaded stats from cache for {file_name_for_report} ({current_hash[:8]})")
                 return cached_stats
             else:
                 # Hash mismatch, cache is stale or corrupted for this filename but different content
-                # print(f"Cache hash mismatch for {file_name_for_report}. Recalculating.")
+                logger.warning(f"Cache hash mismatch for {file_name_for_report}. Recalculating.")
                 pass # Proceed to calculate
         except json.JSONDecodeError:
-            # print(f"Error decoding cache file for {file_name_for_report}. Recalculating.")
+            logger.error(f"Error decoding cache file for {file_name_for_report}. Recalculating.")
             pass # Proceed to calculate
         except Exception: # Other errors reading cache
-            # print(f"Error reading cache file for {file_name_for_report}. Recalculating.")
+            logger.error(f"Error reading cache file for {file_name_for_report}. Recalculating.")
             pass # Proceed to calculate
 
 
     # If cache not found, or stale, calculate stats
     try:
-        # print(f"Calculating stats for {file_name_for_report} ({file_path})")
+        logger.info(f"Calculating stats for {file_name_for_report} ({current_hash[:8]})")
         table = pq.read_table(file_path)
         stats = {
             f"{file_name_for_report} Rows": table.num_rows,
@@ -86,9 +89,9 @@ def get_parquet_stats(file_path, file_name_for_report):
         try:
             with open(cache_file_path, 'w') as f:
                 json.dump(stats, f, indent=4)
-            # print(f"Saved stats to cache for {file_name_for_report} ({current_hash}.json)")
+            logger.info(f"Saved stats to cache for {file_name_for_report} ({current_hash[:8]}.json)")
         except Exception as e:
-            # print(f"Error saving stats to cache for {file_name_for_report}: {e}")
+            logger.error(f"Error saving stats to cache for {file_name_for_report}: {e}")
             # Non-fatal if caching fails, primary goal is to return stats
             pass
         return stats
@@ -118,12 +121,12 @@ def main_test_run(sample_n: int):
     if os.path.exists(MASTER_GRAPH_FILE):
         try:
             g.parse(MASTER_GRAPH_FILE, format="turtle")
-            print(f"Loaded existing master knowledge graph from {MASTER_GRAPH_FILE} ({len(g)} triples).")
+            logger.info(f"Loaded existing master knowledge graph from {MASTER_GRAPH_FILE} ({len(g)} triples).")
         except Exception as e:
-            print(f"Error loading existing master graph: {e}. Initializing a new graph.")
+            logger.error(f"Error loading existing master graph: {e}. Initializing a new graph.")
             # g is already an empty graph
     else:
-        print("No existing master knowledge graph found. Initializing a new graph.")
+        logger.info("No existing master knowledge graph found. Initializing a new graph.")
     timings["Master Graph Parsing"] = time.time() - t_start
 
     # Bind namespaces to the global graph instance early
@@ -146,7 +149,7 @@ def main_test_run(sample_n: int):
         report_content += "## Error\nMissing one or more environment variables: EXCEL_FILE_PATH, AUTHORS_PARQUET_PATH, AUTHOR_DETAILS_PARQUET_PATH.\n"
         with open(os.path.join(OUTPUT_DIR, "test_run_report.md"), "w") as f:
             f.write(report_content)
-        print("Error: Missing environment variables. Check report.")
+        logger.error("Error: Missing environment variables. Check report.")
         return
 
     # 1. Input File Stats
@@ -191,7 +194,7 @@ def main_test_run(sample_n: int):
         report_content += f"\nTotal execution time: {timings['Overall Script']:.2f} seconds.\n"
         with open(os.path.join(OUTPUT_DIR, "test_run_report.md"), "w") as f:
             f.write(report_content)
-        print("Error reading Excel. Check report.")
+        logger.error("Error reading Excel. Check report.")
         return
 
     report_content += f"- Total names in Excel: {len(input_df)}\n"
@@ -280,7 +283,7 @@ def main_test_run(sample_n: int):
         report_content += f"\nTotal execution time: {timings['Overall Script']:.2f} seconds.\n"
         with open(os.path.join(OUTPUT_DIR, "test_run_report.md"), "w") as f:
             f.write(report_content)
-        print("No OpenAlex IDs matched for the sample. Check report.")
+        logger.warning("No OpenAlex IDs matched for the sample. Check report.")
         return
 
     # 4. Load data from Parquets for matched IDs
@@ -627,7 +630,7 @@ def main_test_run(sample_n: int):
     report_path = os.path.join(OUTPUT_DIR, "test_run_report.md")
     with open(report_path, "w") as f:
         f.write(report_content)
-    print(f"Test run complete. Report saved to {report_path}")
+    logger.info(f"Test run complete. Report saved to {report_path}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
