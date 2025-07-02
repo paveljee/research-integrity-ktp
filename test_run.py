@@ -351,10 +351,46 @@ def main_test_run(sample_n: int):
     timings["Collated Parquet Saving"] = time.time() - t_start
 
     # 6b. Save collated DataFrame to CSV
+    def prep_collated_df_for_csv(collated_df: pd.DataFrame) -> pd.DataFrame:
+        """Manually revise colnames before CSV dump for easier identification
+        and for fewer errors when reading with different software"""
+        collated_df_for_csv = collated_df.copy()
+        # Add namespace for easier identification
+        col_rename_map = {
+            'first name': 'hcr.first_name',
+            'last name': 'hcr.last_name',
+            'category': 'hcr.category',
+            'primary affiliation': 'hcr.primary_affiliation',
+            'secondary affiliation': 'hcr.secondary_affiliation',
+            'name': 'ktp.display_name',  # produced by KTP team
+            'openalex_id': 'ktp.openalex_id',  # produced by KTP team
+            'authorid': 'ssna.authorid',
+            'display_name': 'ssna.display_name',
+            'display_name_alternatives': 'ssnad.display_name_alternatives',
+            'works_count': 'ssnad.works_count',
+            'last_known_institution': 'ssnad.last_known_institution',
+            'orcid': 'ssnad.orcid',
+            'P(gf)': 'ssna.p_gf',
+            'inference_sources': 'ssna.p_gf_inference_sources',
+            'inference_counts': 'ssna.p_gf_inference_counts',
+            'works_api_url': 'ssnad.works_api_url',
+            'cited_by_count': 'ssnad.cited_by_count',
+            'h_index': 'ssna.h_index',
+            'productivity': 'ssna.productivity',
+            'avg_c10': 'ssna.avg_c10',
+            'avg_logc10': 'ssna.avg_logc10',
+            'updated_date': 'ssnad.updated_date'
+        }
+        # This should preserve col order from this map
+        new_cols = [v for v in col_rename_map.values()]
+        collated_df_for_csv = collated_df_for_csv.rename(columns=col_rename_map)[new_cols]
+        return collated_df_for_csv
+    
     collated_csv_path = os.path.join(OUTPUT_DATA_DIR, "collated_sample_data.csv")
     t_start = time.time()
+    collated_df_for_csv = prep_collated_df_for_csv(collated_df)
     try:
-        collated_df.to_csv(
+        collated_df_for_csv.to_csv(
             path_or_buf=collated_csv_path,
             sep=',',                    # CSV separator
             index=False,                # Don't include index column
