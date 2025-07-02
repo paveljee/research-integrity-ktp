@@ -1,2 +1,6 @@
 pandas==2.3.0
 pyalex==0.18
+python-dotenv
+openpyxl
+pyarrow
+rdflib

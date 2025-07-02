@@ -1,0 +1,205 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix openalex: <https://openalex.org/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema1: <http://schema.org/> .
+@prefix sciscinet: <http://sciscinet.org/ontology/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+sciscinet:hasOpenAlexID a owl:ObjectProperty ;
+    rdfs:label "has OpenAlex ID" .
+
+sciscinet:orcid a owl:DatatypeProperty ;
+    rdfs:label "ORCID" .
+
+openalex:A5024452287 a sciscinet:Author,
+        openalex:Author ;
+    rdfs:label "Author: محمد حمد الرحيل الغرايبة (A5024452287)" ;
+    dcterms:modified "2024-11-20T04:02:15.105592"^^xsd:dateTime ;
+    schema1:affiliation "Institution D" ;
+    schema1:alternateName "الغرايبة",
+        "محمد" ;
+    schema1:citation 154.0 ;
+    schema1:name "محمد حمد الرحيل الغرايبة" ;
+    schema1:url <https://api.openalex.org/authors/A5024452287/works> ;
+    schema1:workExample 180.0 ;
+    sciscinet:avg_c10 "4.4088884497296075"^^xsd:float ;
+    sciscinet:avg_logc10 "2.307963587048072"^^xsd:float ;
+    sciscinet:h_index 15.0 ;
+    sciscinet:orcid "https://orcid.org/0000-0001-8616-4234" ;
+    sciscinet:pgf_author "0.9814197059941366"^^xsd:float ;
+    sciscinet:productivity "0.8757358506165835"^^xsd:float ;
+    owl:sameAs <https://orcid.org/0000-0001-8616-4234> ;
+    foaf:name "محمد حمد الرحيل الغرايبة" .
+
+openalex:A5027521767 a sciscinet:Author,
+        openalex:Author ;
+    rdfs:label "Author: Hélder Pereira Borges (A5027521767)" ;
+    dcterms:modified "2024-12-13T04:02:15.105592"^^xsd:dateTime ;
+    schema1:affiliation "Institution I" ;
+    schema1:alternateName "Borges",
+        "Hélder" ;
+    schema1:citation 3892.0 ;
+    schema1:name "Hélder Pereira Borges" ;
+    schema1:url <https://api.openalex.org/authors/A5027521767/works> ;
+    schema1:workExample 44.0 ;
+    sciscinet:avg_c10 "9.797147986058812"^^xsd:float ;
+    sciscinet:avg_logc10 "2.8225661887076163"^^xsd:float ;
+    sciscinet:h_index 5.0 ;
+    sciscinet:orcid "https://orcid.org/0000-0001-5077-9714" ;
+    sciscinet:pgf_author "0.3163710518831152"^^xsd:float ;
+    sciscinet:productivity "4.556481546298098"^^xsd:float ;
+    owl:sameAs <https://orcid.org/0000-0001-5077-9714> ;
+    foaf:name "Hélder Pereira Borges" .
+
+openalex:A5041788323 a sciscinet:Author,
+        openalex:Author ;
+    rdfs:label "Author: Andrew W. Eckert (A5041788323)" ;
+    dcterms:modified "2024-08-30T04:02:15.105592"^^xsd:dateTime ;
+    schema1:affiliation "Institution H" ;
+    schema1:alternateName "Andrew",
+        "Eckert" ;
+    schema1:citation 4402.0 ;
+    schema1:name "Andrew W. Eckert" ;
+    schema1:url <https://api.openalex.org/authors/A5041788323/works> ;
+    schema1:workExample 74.0 ;
+    sciscinet:avg_c10 "9.98575101065524"^^xsd:float ;
+    sciscinet:avg_logc10 "4.498668636907586"^^xsd:float ;
+    sciscinet:h_index 38.0 ;
+    sciscinet:orcid "https://orcid.org/0000-0002-8821-9904" ;
+    sciscinet:pgf_author "0.8657652593827411"^^xsd:float ;
+    sciscinet:productivity "3.4049997703314188"^^xsd:float ;
+    owl:sameAs <https://orcid.org/0000-0002-8821-9904> ;
+    foaf:name "Andrew W. Eckert" .
+
+openalex:A5049341415 a sciscinet:Author,
+        openalex:Author ;
+    rdfs:label "Author: Yanhong Tan (A5049341415)" ;
+    dcterms:modified "2024-09-22T04:02:15.105592"^^xsd:dateTime ;
+    schema1:affiliation "Institution F" ;
+    schema1:alternateName "Tan",
+        "Yanhong" ;
+    schema1:citation 1224.0 ;
+    schema1:name "Yanhong Tan" ;
+    schema1:url <https://api.openalex.org/authors/A5049341415/works> ;
+    schema1:workExample 156.0 ;
+    sciscinet:avg_c10 "0.39407933088656755"^^xsd:float ;
+    sciscinet:avg_logc10 "4.193454681760557"^^xsd:float ;
+    sciscinet:h_index 6.0 ;
+    sciscinet:orcid "https://orcid.org/0000-0001-5463-2017" ;
+    sciscinet:pgf_author "0.3102474444087585"^^xsd:float ;
+    sciscinet:productivity "1.14800681370471"^^xsd:float ;
+    owl:sameAs <https://orcid.org/0000-0001-5463-2017> ;
+    foaf:name "Yanhong Tan" .
+
+openalex:A5067996127 a sciscinet:Author,
+        openalex:Author ;
+    rdfs:label "Author: Charicklea Meleti (A5067996127)" ;
+    dcterms:modified "2025-02-21T04:02:15.105592"^^xsd:dateTime ;
+    schema1:affiliation "Institution C" ;
+    schema1:alternateName "Charicklea",
+        "Meleti" ;
+    schema1:citation 682.0 ;
+    schema1:name "Charicklea Meleti" ;
+    schema1:url <https://api.openalex.org/authors/A5067996127/works> ;
+    schema1:workExample 164.0 ;
+    sciscinet:avg_c10 "3.6575777822068725"^^xsd:float ;
+    sciscinet:avg_logc10 "4.231461134697517"^^xsd:float ;
+    sciscinet:h_index 45.0 ;
+    sciscinet:orcid "https://orcid.org/0000-0002-9310-5510" ;
+    sciscinet:pgf_author "0.782711215506554"^^xsd:float ;
+    sciscinet:productivity "1.893784750392823"^^xsd:float ;
+    owl:sameAs <https://orcid.org/0000-0002-9310-5510> ;
+    foaf:name "Charicklea Meleti" .
+
+openalex:A5071575884 a sciscinet:Author,
+        openalex:Author ;
+    rdfs:label "Author: 公一 成瀬 (A5071575884)" ;
+    dcterms:modified "2024-09-15T04:02:15.105592"^^xsd:dateTime ;
+    schema1:affiliation "Institution G" ;
+    schema1:alternateName "公一",
+        "成瀬" ;
+    schema1:citation 4144.0 ;
+    schema1:name "公一 成瀬" ;
+    schema1:url <https://api.openalex.org/authors/A5071575884/works> ;
+    schema1:workExample 149.0 ;
+    sciscinet:avg_c10 "0.3536393864887688"^^xsd:float ;
+    sciscinet:avg_logc10 "3.787155178927922"^^xsd:float ;
+    sciscinet:h_index 22.0 ;
+    sciscinet:orcid "https://orcid.org/0000-0001-9683-8129" ;
+    sciscinet:pgf_author "0.9934085622431656"^^xsd:float ;
+    sciscinet:productivity "4.428692977858553"^^xsd:float ;
+    owl:sameAs <https://orcid.org/0000-0001-9683-8129> ;
+    foaf:name "公一 成瀬" .
+
+openalex:A5075522567 a sciscinet:Author,
+        openalex:Author ;
+    rdfs:label "Author: D Simkovic (A5075522567)" ;
+    schema1:name "D Simkovic" .
+
+openalex:A5080312739 a sciscinet:Author,
+        openalex:Author ;
+    rdfs:label "Author: Javier Enrique Rivera Ramon (A5080312739)" ;
+    dcterms:modified "2024-11-08T04:02:15.105592"^^xsd:dateTime ;
+    schema1:affiliation "Institution B" ;
+    schema1:alternateName "Javier",
+        "Ramon" ;
+    schema1:citation 4410.0 ;
+    schema1:name "Javier Enrique Rivera Ramon" ;
+    schema1:url <https://api.openalex.org/authors/A5080312739/works> ;
+    schema1:workExample 183.0 ;
+    sciscinet:avg_c10 "2.144097991857837"^^xsd:float ;
+    sciscinet:avg_logc10 "4.34138312894766"^^xsd:float ;
+    sciscinet:h_index 49.0 ;
+    sciscinet:orcid "https://orcid.org/0000-0001-3651-2728" ;
+    sciscinet:pgf_author "0.700191725745975"^^xsd:float ;
+    sciscinet:productivity "3.8675524188268784"^^xsd:float ;
+    owl:sameAs <https://orcid.org/0000-0001-3651-2728> ;
+    foaf:name "Javier Enrique Rivera Ramon" .
+
+openalex:A5083354159 a sciscinet:Author,
+        openalex:Author ;
+    rdfs:label "Author: Jan De Maeyer (A5083354159)" ;
+    dcterms:modified "2024-11-14T04:02:15.105592"^^xsd:dateTime ;
+    schema1:affiliation "Institution E" ;
+    schema1:alternateName "Jan",
+        "Maeyer" ;
+    schema1:citation 2706.0 ;
+    schema1:name "Jan De Maeyer" ;
+    schema1:url <https://api.openalex.org/authors/A5083354159/works> ;
+    schema1:workExample 131.0 ;
+    sciscinet:avg_c10 "6.794795263760037"^^xsd:float ;
+    sciscinet:avg_logc10 "4.591018362970245"^^xsd:float ;
+    sciscinet:h_index 11.0 ;
+    sciscinet:orcid "https://orcid.org/0000-0002-4272-5375" ;
+    sciscinet:pgf_author "0.5248576115806293"^^xsd:float ;
+    sciscinet:productivity "2.5022134917790555"^^xsd:float ;
+    owl:sameAs <https://orcid.org/0000-0002-4272-5375> ;
+    foaf:name "Jan De Maeyer" .
+
+openalex:A5110417312 a sciscinet:Author,
+        openalex:Author ;
+    rdfs:label "Author: Sodai Narumi (A5110417312)" ;
+    dcterms:modified "2025-01-09T04:02:15.105592"^^xsd:dateTime ;
+    schema1:affiliation "Institution A" ;
+    schema1:alternateName "Narumi",
+        "Sodai" ;
+    schema1:citation 4747.0 ;
+    schema1:name "Sodai Narumi" ;
+    schema1:url <https://api.openalex.org/authors/A5110417312/works> ;
+    schema1:workExample 94.0 ;
+    sciscinet:avg_c10 "0.4117488701545102"^^xsd:float ;
+    sciscinet:avg_logc10 "3.2117952811840964"^^xsd:float ;
+    sciscinet:h_index 31.0 ;
+    sciscinet:orcid "https://orcid.org/0000-0002-5830-4601" ;
+    sciscinet:pgf_author "0.6968522171755467"^^xsd:float ;
+    sciscinet:productivity "1.6440289910987194"^^xsd:float ;
+    owl:sameAs <https://orcid.org/0000-0002-5830-4601> ;
+    foaf:name "Sodai Narumi" .
+
+sciscinet:Author a owl:Class ;
+    rdfs:label "SciSciNet Author" .
+
+openalex:Author a owl:Class ;
+    rdfs:label "OpenAlex Author Entity" .
