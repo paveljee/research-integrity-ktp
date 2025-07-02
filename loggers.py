@@ -29,5 +29,6 @@ def get_logger(name=__name__, log_file=None, level=logging.INFO):
 
         logger.addHandler(console_handler)
         logger.addHandler(file_handler)
+        logger.propagate = False # Prevent messages from being passed to the root logger
 
     return logger

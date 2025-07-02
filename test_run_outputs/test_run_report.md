@@ -33,9 +33,9 @@
 - Sampled 3 names (random_state=42).
 - Finding OpenAlex IDs (top_k=1, highest relevance only).
 - Processed 3 names:
-  - Found in local graph (API call skipped): 0
-  - API calls attempted: 3
-  - API calls succeeded (found OpenAlex ID): 3
+  - Found in local graph (API call skipped): 3
+  - API calls attempted: 0
+  - API calls succeeded (found OpenAlex ID): 0
   - API calls failed (no OpenAlex ID found): 0
 - Found 3 unique OpenAlex IDs for the sample.
 - Loading data from Parquet files for matched OpenAlex IDs.
@@ -46,9 +46,9 @@
 - Successfully saved collated data to `test_run_outputs/data/collated_sample_data.csv`.
 
 ## RDF Graph Generation
-- Master graph currently has 0 triples before adding new data from this run.
+- Master graph currently has 58 triples before adding new data from this run.
 - Successfully saved master RDF graph to `test_run_outputs/data/master_knowledge_graph.ttl`.
-- Master RDF Graph now contains 58 triples.
+- Master RDF Graph now contains 62 triples.
 
 ### RDF Triple Statistics
 - Analyzing 22 unique predicates:
@@ -59,8 +59,8 @@
   - Count of distinct values: 3
   - Top 5 most frequent values:
     - `Art`: 1 occurrences
-    - `Science`: 1 occurrences
     - `Misc`: 1 occurrences
+    - `Science`: 1 occurrences
 
 #### Predicate 2: `hcr:firstName`
 - Total occurrences: 3
@@ -68,8 +68,8 @@
   - Count of distinct values: 3
   - Top 5 most frequent values:
     - `Michael`: 1 occurrences
-    - `Leonardo`: 1 occurrences
     - `Unknown`: 1 occurrences
+    - `Leonardo`: 1 occurrences
 
 #### Predicate 3: `hcr:lastName`
 - Total occurrences: 3
@@ -77,8 +77,8 @@
   - Count of distinct values: 3
   - Top 5 most frequent values:
     - `Angelo`: 1 occurrences
-    - `Vinci`: 1 occurrences
     - `Author`: 1 occurrences
+    - `Vinci`: 1 occurrences
 
 #### Predicate 4: `hcr:primaryAffiliation`
 - Total occurrences: 3
@@ -86,8 +86,8 @@
   - Count of distinct values: 3
   - Top 5 most frequent values:
     - `Vatican`: 1 occurrences
-    - `Milan`: 1 occurrences
     - `Nowhere`: 1 occurrences
+    - `Milan`: 1 occurrences
 
 #### Predicate 5: `hcr:secondaryAffiliation`
 - Total occurrences: 2
@@ -119,9 +119,9 @@
     - `Michelangelo Buonarroti`: 1 occurrences
 
 #### Predicate 9: `schema1:citation`
-- Total occurrences: 1
+- Total occurrences: 2
 - **Numeric Values Statistics:**
-  - Count: 1
+  - Count: 2
   - Mean: 1000.00
   - Median: 1000.00
   - Q1 (25th percentile): 1000.00
@@ -133,20 +133,21 @@
   - Count of distinct values: 3
   - Top 5 most frequent values:
     - `Michael Angelo`: 1 occurrences
-    - `Leonardo Vinci`: 1 occurrences
     - `Unknown Author`: 1 occurrences
+    - `Leonardo Vinci`: 1 occurrences
 
 #### Predicate 11: `schema1:url`
-- Total occurrences: 1
+- Total occurrences: 2
 - **Non-Numeric Values Statistics:**
-  - Count of distinct values: 1
+  - Count of distinct values: 2
   - Top 5 most frequent values:
+    - `ns1:url1`: 1 occurrences
     - `url1`: 1 occurrences
 
 #### Predicate 12: `schema1:workExample`
-- Total occurrences: 1
+- Total occurrences: 2
 - **Numeric Values Statistics:**
-  - Count: 1
+  - Count: 2
   - Mean: 138.00
   - Median: 138.00
   - Q1 (25th percentile): 138.00
@@ -171,9 +172,9 @@
   - Q3 (75th percentile): 0.10
 
 #### Predicate 15: `sciscinet:h_index`
-- Total occurrences: 1
+- Total occurrences: 2
 - **Numeric Values Statistics:**
-  - Count: 1
+  - Count: 2
   - Mean: 5.00
   - Median: 5.00
   - Q1 (25th percentile): 5.00
@@ -220,18 +221,18 @@
 - **Non-Numeric Values Statistics:**
   - Count of distinct values: 12
   - Top 5 most frequent values:
-    - `SciSciNet Author`: 1 occurrences
-    - `OpenAlex Author Entity`: 1 occurrences
-    - `ORCID`: 1 occurrences
-    - `has OpenAlex ID`: 1 occurrences
+    - `Category from HCR`: 1 occurrences
     - `First Name from HCR`: 1 occurrences
+    - `Last Name from HCR`: 1 occurrences
+    - `Primary Affiliation from HCR`: 1 occurrences
+    - `Secondary Affiliation from HCR`: 1 occurrences
 
 #### Predicate 21: `owl:sameAs`
 - Total occurrences: 1
 - **Non-Numeric Values Statistics:**
   - Count of distinct values: 1
   - Top 5 most frequent values:
-    - `ns1:0000-0001-2345-6789`: 1 occurrences
+    - `ns2:0000-0001-2345-6789`: 1 occurrences
 
 #### Predicate 22: `foaf:name`
 - Total occurrences: 1
@@ -241,16 +242,16 @@
     - `Michael Angelo`: 1 occurrences
 
 ## Pipeline Execution Timing
-- Master Graph Parsing: 0.0008 seconds
-- Input File Hashing: 0.0001 seconds
-- Get Authors Parquet Stats: 0.0197 seconds
-- Get Author Details Parquet Stats: 0.0026 seconds
-- Excel Reading: 0.1309 seconds
-- OpenAlex API Interaction and Graph Lookup: 1.7329 seconds
-- Authors Parquet Reading: 0.0046 seconds
-- Author Details Parquet Reading: 0.0044 seconds
-- Data Collation: 0.0061 seconds
-- Collated Parquet Saving: 0.0063 seconds
-- Collated CSV Saving: 0.0132 seconds
-- RDF Generation and Serialization: 0.0291 seconds
-- **Overall Script**: 1.9562 seconds
+- Master Graph Parsing: 0.0163 seconds
+- Input File Hashing: 0.0002 seconds
+- Get Authors Parquet Stats: 0.0011 seconds
+- Get Author Details Parquet Stats: 0.0008 seconds
+- Excel Reading: 0.2754 seconds
+- OpenAlex API Interaction and Graph Lookup: 0.3521 seconds
+- Authors Parquet Reading: 0.0892 seconds
+- Author Details Parquet Reading: 0.0052 seconds
+- Data Collation: 0.0110 seconds
+- Collated Parquet Saving: 0.0140 seconds
+- Collated CSV Saving: 0.0073 seconds
+- RDF Generation and Serialization: 0.0357 seconds
+- **Overall Script**: 0.8181 seconds
