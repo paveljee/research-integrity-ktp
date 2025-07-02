@@ -60,7 +60,7 @@ def get_openalex_author_id(author_name, top_k=1):
         sorted_authors = sorted(authors_list, key=lambda x: (x.get('relevance_score', 0), x.get('works_count', 0)), reverse=True)
 
         # For debug
-        print("DEBUG: Full authors list:", *([{k: a.get(k) for k in ['id', 'display_name', 'relevance_score', 'works_count']} for a in sorted_authors]), sep='\n')
+        #print("DEBUG: Full authors list:", *([{k: a.get(k) for k in ['id', 'display_name', 'relevance_score', 'works_count']} for a in sorted_authors]), sep='\n')
 
         if top_k == 1:
             return sorted_authors[0]['id'] if sorted_authors else None

@@ -29,28 +29,6 @@ sciscinet:hasOpenAlexID a owl:ObjectProperty ;
 sciscinet:orcid a owl:DatatypeProperty ;
     rdfs:label "ORCID" .
 
-openalex:A5000260833 a sciscinet:Author,
-        openalex:Author ;
-    rdfs:label "Author: Michael A. Angelo (A5000260833)" ;
-    hcr:category "Cross-Field" ;
-    hcr:firstName "Michael A." ;
-    hcr:lastName "Angelo" ;
-    hcr:primaryAffiliation "Stanford University, United States" ;
-    dcterms:modified "2024-12-28T12:19:41.550892"^^xsd:dateTime ;
-    schema1:alternateName "[\"M. A. Palladino\", \"Michael Angelo Palladino\", \"Palladino Ma\", \"Michael A. Palladino\", \"Michael Palladino\", \"M. Palladino\", \"M.A Palladino\"]" ;
-    schema1:citation 22318 ;
-    schema1:name "Michael A. Angelo" ;
-    schema1:url <https://api.openalex.org/works?filter=author.id:A5000260833> ;
-    schema1:workExample 303 ;
-    sciscinet:avg_c10 "45.666666666666664"^^xsd:float ;
-    sciscinet:avg_logc10 "2.24291504816104"^^xsd:float ;
-    sciscinet:h_index 71 ;
-    sciscinet:orcid "https://orcid.org/0000-0002-4687-7612" ;
-    sciscinet:pgf_author "0.001"^^xsd:float ;
-    sciscinet:productivity "302"^^xsd:float ;
-    owl:sameAs <https://orcid.org/0000-0002-4687-7612> ;
-    foaf:name "Michael A. Palladino" .
-
 openalex:A5002835698 a sciscinet:Author,
         openalex:Author ;
     rdfs:label "Author: Ayyoob Sharifi (A5002835698)" ;
@@ -71,6 +49,28 @@ openalex:A5002835698 a sciscinet:Author,
     sciscinet:productivity "332"^^xsd:float ;
     owl:sameAs <https://orcid.org/0000-0002-8983-8613> ;
     foaf:name "Ayyoob Sharifi" .
+
+openalex:A5003323350 a sciscinet:Author,
+        openalex:Author ;
+    rdfs:label "Author: Michael Angelo (A5003323350)" ;
+    hcr:category "Cross-Field" ;
+    hcr:firstName "Michael A." ;
+    hcr:lastName "Angelo" ;
+    hcr:primaryAffiliation "Stanford University, United States" ;
+    dcterms:modified "2024-12-25T19:52:34.464423"^^xsd:dateTime ;
+    schema1:alternateName "[\"M Angelo\", \"Michael Angelo\", \"R. Michael Angelo\", \"Mike Angelo\", \"M. angelo\", \"Michael R. Angelo\", \"Robert Michael Angelo\", \"Robert M. Angelo\"]" ;
+    schema1:citation 6282 ;
+    schema1:name "Michael Angelo" ;
+    schema1:url <https://api.openalex.org/works?filter=author.id:A5003323350> ;
+    schema1:workExample 127 ;
+    sciscinet:avg_c10 "54.42857142857143"^^xsd:float ;
+    sciscinet:avg_logc10 "1.8404920839510392"^^xsd:float ;
+    sciscinet:h_index 33 ;
+    sciscinet:orcid "https://orcid.org/0000-0003-1531-5067" ;
+    sciscinet:pgf_author "0.0"^^xsd:float ;
+    sciscinet:productivity "121"^^xsd:float ;
+    owl:sameAs <https://orcid.org/0000-0003-1531-5067> ;
+    foaf:name "Michael Angelo" .
 
 openalex:A5015562487 a sciscinet:Author,
         openalex:Author ;
@@ -96,7 +96,7 @@ openalex:A5015562487 a sciscinet:Author,
 
 openalex:A5019955301 a sciscinet:Author,
         openalex:Author ;
-    rdfs:label "Author: Sanjiv Sam Gambhir (A5019955301)" ;
+    rdfs:label "Author: Sanjiv Gambhir (A5019955301)" ;
     hcr:category "Cross-Field" ;
     hcr:firstName "Sanjiv Sam" ;
     hcr:lastName "Gambhir" ;
@@ -104,7 +104,7 @@ openalex:A5019955301 a sciscinet:Author,
     dcterms:modified "2024-12-31T12:33:10.460061"^^xsd:dateTime ;
     schema1:alternateName "[\"S.S Gambhir\", \"S. Gambhir\", \"S. S. Gambhir\", \"S. Sam Gambhir\", \"Sanjiv S. Gambhir\", \"Sanjiv Sam Gambhir\", \"Sanjiv Gambhir\"]" ;
     schema1:citation 84418 ;
-    schema1:name "Sanjiv Sam Gambhir" ;
+    schema1:name "Sanjiv Gambhir" ;
     schema1:url <https://api.openalex.org/works?filter=author.id:A5019955301> ;
     schema1:workExample 1374 ;
     sciscinet:avg_c10 "58.307434695244474"^^xsd:float ;
@@ -141,7 +141,7 @@ openalex:A5034296749 a sciscinet:Author,
 
 openalex:A5046971682 a sciscinet:Author,
         openalex:Author ;
-    rdfs:label "Author: James E. Crowe Jr. (A5046971682)" ;
+    rdfs:label "Author: James Crowe Jr. (A5046971682)" ;
     hcr:category "Cross-Field" ;
     hcr:firstName "James E." ;
     hcr:lastName "Crowe Jr." ;
@@ -149,7 +149,7 @@ openalex:A5046971682 a sciscinet:Author,
     dcterms:modified "2024-12-28T02:03:56.614912"^^xsd:dateTime ;
     schema1:alternateName "[\"JamesE. Crowe\", \"J. Crowe\", \"James. E. Crowe\", \"James E. Crowe\", \"J CROWEJR\", \"James Crowe\", \"J. E. Crowe\", \"J.E Crowe\", \"Crowe Je\", \"Jim Crowe\", \"James E. Crowe, Jr.\"]" ;
     schema1:citation 33772 ;
-    schema1:name "James E. Crowe Jr." ;
+    schema1:name "James Crowe Jr." ;
     schema1:url <https://api.openalex.org/works?filter=author.id:A5046971682> ;
     schema1:workExample 1333 ;
     sciscinet:avg_c10 "24.739350180505415"^^xsd:float ;
@@ -185,7 +185,7 @@ openalex:A5057282533 a sciscinet:Author,
 
 openalex:A5059594060 a sciscinet:Author,
         openalex:Author ;
-    rdfs:label "Author: Xian Jun Loh (A5059594060)" ;
+    rdfs:label "Author: Xian Loh (A5059594060)" ;
     hcr:category "Cross-Field" ;
     hcr:firstName "Xian Jun" ;
     hcr:lastName "Loh" ;
@@ -193,7 +193,7 @@ openalex:A5059594060 a sciscinet:Author,
     dcterms:modified "2024-12-27T02:42:38.841695"^^xsd:dateTime ;
     schema1:alternateName "[\"Loh Xian Jun\", \"Xianjun Loh\", \"Xian Loh\", \"X.J Loh\", \"Xian‐Jun Loh\", \"Xian Jun Loh\", \"X. J. Loh\", \"Xian J. Loh\"]" ;
     schema1:citation 35297 ;
-    schema1:name "Xian Jun Loh" ;
+    schema1:name "Xian Loh" ;
     schema1:url <https://api.openalex.org/works?filter=author.id:A5059594060> ;
     schema1:workExample 593 ;
     sciscinet:avg_c10 "64.00222222222222"^^xsd:float ;
@@ -207,7 +207,7 @@ openalex:A5059594060 a sciscinet:Author,
 
 openalex:A5081575390 a sciscinet:Author,
         openalex:Author ;
-    rdfs:label "Author: Jeffrey B. -H. Tok (A5081575390)" ;
+    rdfs:label "Author: Jeffrey Tok (A5081575390)" ;
     hcr:category "Materials Science" ;
     hcr:firstName "Jeffrey B. -H." ;
     hcr:lastName "Tok" ;
@@ -215,7 +215,7 @@ openalex:A5081575390 a sciscinet:Author,
     dcterms:modified "2024-12-25T22:35:35.396265"^^xsd:dateTime ;
     schema1:alternateName "[\"Jeffery B.‐H. Tok\", \"J Tok\", \"Jeffrey B.‐H. Tok\", \"J. B.‐H. Tok\", \"Jeffrey Tok\", \"Jeffrey B.H. Tok\", \"J B Tok\", \"Jeffrey B. Tok\", \"Jeffrey B.‐H Tok\"]" ;
     schema1:citation 24895 ;
-    schema1:name "Jeffrey B. -H. Tok" ;
+    schema1:name "Jeffrey Tok" ;
     schema1:url <https://api.openalex.org/works?filter=author.id:A5081575390> ;
     schema1:workExample 142 ;
     sciscinet:avg_c10 "162.0662251655629"^^xsd:float ;
