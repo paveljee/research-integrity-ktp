@@ -8,6 +8,7 @@ import pyalex
 from pyalex import Authors
 import os
 from dotenv import load_dotenv
+from time import sleep
 
 # Optional: Set your email for OpenAlex API polite pool
 pyalex.config.email = os.getenv('OPENALEX_EMAIL')
@@ -39,6 +40,7 @@ def get_openalex_author_id(author_name, top_k=1):
     Returns a list of the top_k matches.
     """
     try:
+        sleep(pyalex.config.retry_backoff_factor)  # Not sure pyalex does this *between* queries, so better add to be polite
         authors_list = Authors().search(author_name).get()
         if not authors_list:
             return [] if top_k > 1 else None
