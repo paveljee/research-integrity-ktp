@@ -49,7 +49,9 @@ def main_test_run():
     SEED = 42
     SAMPLE_N = 10
     OUTPUT_DIR = "test_run_outputs"
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    # The below subdir to enable gitignore but still track report
+    OUTPUT_DATA_DIR = os.path.join(OUTPUT_DIR, "data")
+    os.makedirs(OUTPUT_DATA_DIR, exist_ok=True)
 
     timings = {}
     overall_start_time = time.time()
@@ -191,7 +193,7 @@ def main_test_run():
     report_content += f"- Collated DataFrame has {len(collated_df)} rows and {len(collated_df.columns)} columns.\n"
 
     # 6. Save collated DataFrame to Parquet
-    collated_parquet_path = os.path.join(OUTPUT_DIR, "collated_sample_data.parquet")
+    collated_parquet_path = os.path.join(OUTPUT_DATA_DIR, "collated_sample_data.parquet")
     t_start = time.time()
     try:
         collated_df.to_parquet(collated_parquet_path, index=False)
@@ -326,7 +328,7 @@ def main_test_run():
             if excel_col_name in row and pd.notna(row[excel_col_name]):
                 g.add((author_uri, hcr_predicate, Literal(row[excel_col_name])))
 
-    rdf_file_path = os.path.join(OUTPUT_DIR, "collated_sample_data.ttl")
+    rdf_file_path = os.path.join(OUTPUT_DATA_DIR, "collated_sample_data.ttl")
     try:
         g.serialize(destination=rdf_file_path, format="turtle")
         report_content += f"- Successfully saved RDF graph to `{rdf_file_path}`.\n"
