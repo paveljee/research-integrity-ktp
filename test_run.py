@@ -52,9 +52,32 @@ def main_test_run():
     # The below subdir to enable gitignore but still track report
     OUTPUT_DATA_DIR = os.path.join(OUTPUT_DIR, "data")
     os.makedirs(OUTPUT_DATA_DIR, exist_ok=True)
+    MASTER_GRAPH_FILE = os.path.join(OUTPUT_DATA_DIR, "master_knowledge_graph.ttl")
 
     timings = {}
     overall_start_time = time.time()
+
+    # Initialize or load the master knowledge graph once
+    g = Graph()
+    if os.path.exists(MASTER_GRAPH_FILE):
+        try:
+            g.parse(MASTER_GRAPH_FILE, format="turtle")
+            print(f"Loaded existing master knowledge graph from {MASTER_GRAPH_FILE} ({len(g)} triples).")
+        except Exception as e:
+            print(f"Error loading existing master graph: {e}. Initializing a new graph.")
+            # g is already an empty graph
+    else:
+        print("No existing master knowledge graph found. Initializing a new graph.")
+
+    # Bind namespaces to the global graph instance early
+    g.bind("sciscinet", SCISCINET)
+    g.bind("openalex", OPENALEX)
+    g.bind("schema", SCHEMA)
+    g.bind("dcterms", DCTERMS)
+    g.bind("foaf", FOAF)
+    g.bind("owl", OWL)
+    g.bind("hcr", HCR)
+    g.bind("rdf", RDF) # Ensure RDF is bound for queries
 
     excel_file_path = os.getenv('EXCEL_FILE_PATH', 'dummy_data/dummy_names.xlsx')
     authors_parquet_path = os.getenv('AUTHORS_PARQUET_PATH', 'dummy_data/dummy_authors.parquet')
@@ -119,8 +142,46 @@ def main_test_run():
     # 3. Find OpenAlex IDs (top_k=1)
     report_content += "- Finding OpenAlex IDs (top_k=1, highest relevance only).\n"
     t_start = time.time()
-    sample_df['openalex_id'] = sample_df['name'].apply(lambda name: get_openalex_author_id(name, top_k=1))
-    timings["OpenAlex API Interaction"] = time.time() - t_start
+
+    # --- Enhanced OpenAlex ID retrieval with graph lookup ---
+    openalex_ids = []
+    api_calls_made = 0
+    found_in_graph = 0
+
+    for name_to_search in sample_df['name']:
+        # Check graph first
+        query = f"""
+            SELECT ?author_uri WHERE {{
+                ?author_uri rdf:type openalex:Author ;
+                            schema:name ?name .
+                FILTER(LCASE(STR(?name)) = LCASE("{name_to_search.replace('"', '""')}"))
+            }} LIMIT 1
+        """
+        # Ensure g is defined (it's defined later, so we need to load it earlier or pass it)
+        # For now, let's assume g is loaded at the beginning of main_test_run for this check.
+        # This requires moving graph loading up or passing 'g' around.
+        # To minimize changes, we'll load 'g' specifically for this section if not already global.
+        # However, the plan is to load 'g' once. So, let's adjust where 'g' is loaded.
+        # For this diff, I will assume 'g' (the master graph) is already loaded.
+        # 'g' is now loaded at the beginning of main_test_run.
+
+        results = list(g.query(query)) # Use the globally loaded graph 'g'
+
+        if results:
+            author_uri = str(results[0][0])
+            openalex_ids.append(author_uri)
+            found_in_graph += 1
+        else:
+            # If not in graph, call API
+            api_id = get_openalex_author_id(name_to_search, top_k=1)
+            openalex_ids.append(api_id)
+            if api_id: # Count as API call only if it returns something (even if it's a valid None due to no match)
+                api_calls_made +=1 # Increment if an attempt was made
+
+    sample_df['openalex_id'] = openalex_ids
+    timings["OpenAlex API Interaction and Graph Lookup"] = time.time() - t_start
+    report_content += f"- Searched {len(sample_df)} names: {found_in_graph} found in existing graph, {api_calls_made} potential API lookups performed.\n"
+    # Note: api_calls_made counts attempts. Actual successful API hits might be lower if names aren't found by API.
 
     matched_sample_df = sample_df.dropna(subset=['openalex_id']).copy()
     matched_ids = [oid.split('/')[-1] for oid in matched_sample_df['openalex_id'].tolist() if oid]
@@ -229,16 +290,20 @@ def main_test_run():
     # 7. Save to RDF Turtle
     report_content += "\n## RDF Graph Generation\n"
     t_start = time.time()
-    g = Graph()
-    g.bind("sciscinet", SCISCINET)
-    g.bind("openalex", OPENALEX)
-    g.bind("schema", SCHEMA)
-    g.bind("dcterms", DCTERMS)
-    g.bind("foaf", FOAF)
-    g.bind("owl", OWL)
-    g.bind("hcr", HCR)
+
+    # The graph 'g' is now loaded at the start of main_test_run and updated in place.
+    # We just need to ensure its state is correctly reported before adding new triples.
+    report_content += f"- Master graph currently has {len(g)} triples before adding new data from this run.\n"
+
+    # Ensure output data directory exists if graph was initially empty and directory wasn't created
+    if not os.path.exists(os.path.dirname(MASTER_GRAPH_FILE)):
+        os.makedirs(os.path.dirname(MASTER_GRAPH_FILE), exist_ok=True)
+
+    # Namespaces are bound when 'g' is initialized.
 
     # Basic ontology statements (very minimal)
+    # These might be added multiple times if not checked, but g.add is idempotent for same triples.
+    # For true minimality, one might check if these exist, but rdflib handles duplicates gracefully.
     g.add((SCISCINET.Author, RDF.type, OWL.Class))
     g.add((SCISCINET.Author, RDFS.label, Literal("SciSciNet Author")))
     g.add((OPENALEX.Author, RDF.type, OWL.Class))
@@ -351,13 +416,14 @@ def main_test_run():
             if excel_col_name in row and pd.notna(row[excel_col_name]):
                 g.add((author_uri, hcr_predicate, Literal(row[excel_col_name])))
 
-    rdf_file_path = os.path.join(OUTPUT_DATA_DIR, "collated_sample_data.ttl")
+    # rdf_file_path = os.path.join(OUTPUT_DATA_DIR, "collated_sample_data.ttl") # Old path
+    # Serialize the master graph to MASTER_GRAPH_FILE
     try:
-        g.serialize(destination=rdf_file_path, format="turtle")
-        report_content += f"- Successfully saved RDF graph to `{rdf_file_path}`.\n"
-        report_content += f"- RDF Graph contains {len(g)} triples.\n"
+        g.serialize(destination=MASTER_GRAPH_FILE, format="turtle")
+        report_content += f"- Successfully saved master RDF graph to `{MASTER_GRAPH_FILE}`.\n"
+        report_content += f"- Master RDF Graph now contains {len(g)} triples.\n"
 
-        # Enhanced RDF Triple Statistics
+        # Enhanced RDF Triple Statistics (operates on the master graph 'g')
         report_content += "\n### RDF Triple Statistics\n"
         predicates = sorted(list(set(g.predicates())))
         if not predicates:
