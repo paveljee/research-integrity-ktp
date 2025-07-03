@@ -11,6 +11,7 @@ from rdflib.namespace import RDF, RDFS, XSD, DCTERMS, FOAF, OWL
 from match_authors import read_names_from_excel, get_openalex_author_id
 import argparse
 from loggers import get_logger
+import shutil
 
 logger = get_logger(__name__)
 
@@ -321,7 +322,6 @@ def main_test_run(sample_n: int):
 
     # --- Enhanced OpenAlex ID retrieval with graph lookup ---
     all_api_search_results = {} # Accumulator for full API results
-    openalex_ids = []
     api_calls_attempted = 0
     api_calls_succeeded = 0
     api_calls_failed = 0
@@ -341,8 +341,6 @@ def main_test_run(sample_n: int):
         last_name = row.get('last name')
         combined_name_for_api = row.get('name') # This is the name used for OpenAlex API call
 
-        author_uri_from_graph = None
-
         if pd.notna(first_name) and pd.notna(last_name):
             # Escape names for SPARQL query
             # Look up in author index
@@ -350,7 +348,7 @@ def main_test_run(sample_n: int):
             author_uri_from_graph = author_lookup.get(lookup_key)
 
             if author_uri_from_graph:
-                openalex_ids.append(author_uri_from_graph)
+                row['openalex_id'] = author_uri_from_graph
                 found_in_graph_count += 1
                 logger.info(f"Processing author row {process_author_row_calls} of {len(sample_df)} for name: '{combined_name_for_api}' (found in local graph)")
             else:
@@ -358,7 +356,7 @@ def main_test_run(sample_n: int):
                 # If not in graph by HCR names, call API
                 api_calls_attempted += 1
                 api_id = get_openalex_author_id(combined_name_for_api, all_api_search_results, top_k=1)
-                openalex_ids.append(api_id)
+                row['openalex_id'] = api_id
                 if api_id:
                     api_calls_succeeded += 1
                 else:
@@ -368,15 +366,17 @@ def main_test_run(sample_n: int):
             # If no first/last name, fall back to API directly (should not happen with good input data)
             api_calls_attempted += 1
             api_id = get_openalex_author_id(combined_name_for_api, all_api_search_results, top_k=1)
-            openalex_ids.append(api_id)
+            row['openalex_id'] = api_id
             if api_id:
                 api_calls_succeeded += 1
             else:
                 api_calls_failed += 1
 
-    openalex_ids = sample_df.apply(process_author_row, axis=1).tolist()
+        return row
 
-    sample_df['openalex_id'] = openalex_ids
+    sample_df['openalex_id'] = None
+    sample_df = sample_df.apply(process_author_row, axis=1)
+
     timings["OpenAlex API Interaction and Graph Lookup"] = time.time() - t_start
 
     report_content += f"- Processed {len(sample_df)} names:\n"
@@ -622,7 +622,11 @@ def main_test_run(sample_n: int):
         if pd.notna(row.get('h_index')):
             g.add((author_uri, SCISCINET.h_index, Literal(row['h_index'], datatype=XSD.integer)))
         if pd.notna(row.get('P(gf)')):
-            g.add((author_uri, SCISCINET.pgf_author, Literal(row['P(gf)'], datatype=XSD.float))) # P(gf) for author
+            g.add((author_uri, SCISCINET.p_gf, Literal(row['P(gf)'], datatype=XSD.float))) # P(gf) for author
+        if pd.notna(row.get('inference_sources')):
+            g.add((author_uri, SCISCINET.p_gf_inference_sources, Literal(row['inference_sources'], datatype=XSD.integer)))
+        if pd.notna(row.get('inference_counts')):
+            g.add((author_uri, SCISCINET.p_gf_inference_counts, Literal(row['inference_counts'], datatype=XSD.integer)))
 
         # From author_details parquet
         if pd.notna(row.get('orcid')):
@@ -684,9 +688,14 @@ def main_test_run(sample_n: int):
     # rdf_file_path = os.path.join(OUTPUT_DATA_DIR, "collated_sample_data.ttl") # Old path
     # Serialize the master graph to MASTER_GRAPH_FILE
     try:
-        g.serialize(destination=MASTER_GRAPH_FILE, format="turtle")
+        shutil.copy(MASTER_GRAPH_FILE, MASTER_GRAPH_FILE + ".bak")
+        logger.info(f"Master graph backed up to: {MASTER_GRAPH_FILE + ".bak"}")
+        logger.info(f"Triple count in graph: {len(g)}")
+        g.serialize(destination=MASTER_GRAPH_FILE, format="turtle", encoding="utf-8")
         report_content += f"- Successfully saved master RDF graph to `{MASTER_GRAPH_FILE}`.\n"
-        report_content += build_graph_stats(g)
+        new_g = Graph(); new_g.parse(MASTER_GRAPH_FILE)
+        logger.info(f"Serialized and re-read; triple count: {len(new_g)}")
+        report_content += build_graph_stats(new_g)
     except Exception as e:
         report_content += f"- Error saving or analyzing RDF graph: {e}\n"
     timings["RDF Generation and Serialization"] = time.time() - t_start
