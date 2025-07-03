@@ -283,7 +283,9 @@ def main_test_run(sample_n: int):
     report_content += f"- Sampled {len(sample_df)} names (random_state={SEED}).\n"
 
     # 3. Find OpenAlex IDs (top_k=1)
-    report_content += "- Finding OpenAlex IDs (top_k=1, highest relevance only).\n"
+    report_content += "- Finding OpenAlex IDs (top_k=1, highest relevance only, secondary sort by works count).\n"
+    report_content += "- OpenAlex API will be used to match the combination of `First Name`, `Last Name` from HCR list to OpenAlex ID using [Search authors](https://docs.openalex.org/api-entities/authors/search-authors) endpoint ([permalink](https://perma.cc/8ZJ8-DN4U)). Implementing the matching mechanism from [source](https://github.com/ourresearch/openalex-elastic-api) is considered for future iterations for better control and reproducibility.\n"
+    report_content += "- `First Name` in HCR lists may also contain middle name(s), so it is split by spaces, if any, and only the first term is used for matching.\n"
 
     logger.info(f"STAGE: Building Author Graph Lookup Index")
     t_start = time.time()
