@@ -195,6 +195,9 @@ def main_test_run(sample_n: int):
     if input_df.empty or 'name' not in input_df.columns:
         report_content += "- Error: Could not read name columns from Excel or Excel is empty.\n"
         # Attempt to save report even on error
+        report_content += "\n## Pipeline Execution Timing\n"
+        for stage, duration in timings.items():
+            report_content += f"- {stage}: {duration:.4f} seconds\n"
         timings["Overall Script"] = time.time() - overall_start_time
         report_content += f"\nTotal execution time: {timings['Overall Script']:.2f} seconds.\n"
         with open(os.path.join(OUTPUT_DIR, "test_run_report.md"), "w") as f:
@@ -306,6 +309,9 @@ def main_test_run(sample_n: int):
 
     if not matched_ids:
         report_content += "- No OpenAlex IDs found for the sample. Cannot proceed.\n"
+        report_content += "\n## Pipeline Execution Timing\n"
+        for stage, duration in timings.items():
+            report_content += f"- {stage}: {duration:.4f} seconds\n"
         timings["Overall Script"] = time.time() - overall_start_time
         report_content += f"\nTotal execution time: {timings['Overall Script']:.2f} seconds.\n"
         with open(os.path.join(OUTPUT_DIR, "test_run_report.md"), "w") as f:
