@@ -307,8 +307,8 @@ def main_test_run(sample_n: int):
         
         report_content = f"- Executed a parametrized alternative to the following SPARQL query against the master graph:\n"
         report_content += f"    ```\n    {sparql_query}\n    ```\n"
-        report_content += f"- Query results: {len(author_lookup)} unique author name pairs found\n"
-        logger.info(f"Built author lookup index from graph: {len(author_lookup)} unique author name pairs found")
+        report_content += f"- Query results: {len(author_lookup)} unique `hcr:firstName`, `hcr:lastName` pairs found\n"
+        logger.info(f"Built author lookup index from graph: {len(author_lookup)} unique hcr:firstName, hcr:lastName pairs found")
         
         return author_lookup, report_content
     
