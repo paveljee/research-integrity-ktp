@@ -31,7 +31,7 @@
 
 ## Data Sampling and Matching
 - Total names in Excel: 6886
-- Sampled 1000 names (random_state=42).
+- Sampled 4000 names (random_state=42).
 - Finding OpenAlex IDs (top_k=1, highest relevance only).
 - Executed a parametrized alternative to the following SPARQL query against the master graph:
     ```
@@ -41,25 +41,25 @@
         }
     ```
 - Query results: 3908 unique author name pairs found
-- Processed 1000 names:
-  - Found in local graph (API call skipped): 999
-  - API calls attempted: 1
+- Processed 4000 names:
+  - Found in local graph (API call skipped): 3997
+  - API calls attempted: 3
   - API calls succeeded (found OpenAlex ID): 0
-  - API calls failed (no OpenAlex ID found): 1
-- Full API search results saved to: `test_run_outputs/data/api_full_results/1751550196.json`
+  - API calls failed (no OpenAlex ID found): 3
+- Full API search results saved to: `test_run_outputs/data/api_full_results/1751553761.json`
 - Found 0 unique OpenAlex IDs for the sample.
 - No OpenAlex IDs found for the sample. Cannot proceed.
 
 ## Pipeline Execution Timing
-- Master Graph Parsing: 1.2141 seconds
+- Master Graph Parsing: 1.1821 seconds
 - Input File Hashing: 0.0002 seconds
-- Get Authors Parquet Stats: 1.1128 seconds
-- Get Author Details Parquet Stats: 1.8663 seconds
-- Excel Reading: 0.1792 seconds
-- Author Graph Lookup Index Build: 11.0790 seconds
-- OpenAlex API Interaction and Graph Lookup: 0.2714 seconds
+- Get Authors Parquet Stats: 1.1398 seconds
+- Get Author Details Parquet Stats: 2.3112 seconds
+- Excel Reading: 0.1771 seconds
+- Author Graph Lookup Index Build: 10.5575 seconds
+- OpenAlex API Interaction and Graph Lookup: 0.8969 seconds
 
-Total execution time: 15.73 seconds.
+Total execution time: 16.27 seconds.
 
 ### RDF Triple Statistics
 - Master RDF Graph now contains 87007 triples.
