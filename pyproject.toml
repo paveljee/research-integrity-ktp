@@ -9,6 +9,8 @@ readme = "README.md" # Assuming a README might be added later
 python = "^3.9" # Specify a compatible Python version range, e.g., ^3.9, ^3.10, ^3.11, ^3.12
 pandas = "2.3.0"
 pyalex = "0.18"
+oxrdflib = "^0.4.0"
+pyoxigraph = "^0.4.11"
 
 [build-system]
 requires = ["poetry-core"]
