@@ -120,6 +120,12 @@ Install dependencies using:
 pip install -r requirements.txt
 ```
 
+For users who prefer alternative package management systems, the repository also includes:
+- A `pyproject.toml` and `poetry.lock` file for use with [Poetry](https://python-poetry.org/).
+- An `environment.yml` file for creating a [Conda](https://docs.conda.io/en/latest/) environment.
+
+These files define the same core dependencies. However, the setup and usage instructions in this README primarily focus on the `requirements.txt` and `pip` workflow.
+
 ## 5. Execution
 
 1.  **Set up Environment**:
@@ -322,6 +328,16 @@ The user requested a final revision to the README's Conclusion section (Section 
 *   **Jules' Actions**:
     1.  *Analysis*: Jules analyzed the existing Conclusion, identifying phrases such as "effective method," "flexible tool," and "comprehensive report" as evaluative.
     2.  *Revision*: Jules drafted and implemented a new version of the Conclusion section, rephrasing sentences to focus on describing the pipeline's operations and the `test_run.py` script's outputs factually, without qualitative assessments.
+
+**Acknowledging Alternative Dependency Files**
+
+The user pointed out that the repository contains `pyproject.toml` (for Poetry) and `environment.yml` (for Conda), which were not mentioned in the README. The request was to acknowledge these for users who prefer these systems, while keeping `requirements.txt` as the primary documented method.
+
+*   **User Request**: Update the README to note the availability of Poetry and Conda dependency files as alternatives.
+*   **Jules' Actions**:
+    1.  *Review and Plan*: Jules confirmed the presence of the files and planned to update Section 4 ("Dependencies").
+    2.  *Content Drafting*: A concise note was drafted, explaining the purpose of these files and stating that the README's main instructions would continue to focus on `requirements.txt`. Links to Poetry and Conda documentation were included.
+    3.  *README Update (Section 4)*: The drafted note was added to Section 4, after the `pip install -r requirements.txt` instructions, ensuring the primary workflow remained prominent.
 
 **Observations on AI Collaboration:**
 
