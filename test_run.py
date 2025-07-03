@@ -215,6 +215,35 @@ def main_test_run(sample_n: int):
 
     # 3. Find OpenAlex IDs (top_k=1)
     report_content += "- Finding OpenAlex IDs (top_k=1, highest relevance only).\n"
+
+    logger.info(f"STAGE: Building Author Graph Lookup Index")
+    t_start = time.time()
+    def build_author_lookup_index(g):
+        # Full SPARQL query equivalent:
+        # SELECT ?author_uri ?fn ?ln WHERE {
+        #     ?author_uri hcr:firstName ?fn ;
+        #                 hcr:lastName ?ln .
+        # }
+
+        results = []
+
+        # Query using triple patterns directly
+        for author_uri, fn in g.subject_objects(HCR.firstName):
+            for _, ln in g.subject_objects(HCR.lastName):
+                if author_uri == _:  # Same author has both first and last name
+                    results.append((author_uri, fn, ln))
+
+        # Create lookup index
+        author_lookup = {(str(fn).lower(), str(ln).lower()): str(uri) 
+                        for uri, fn, ln in results}
+        
+        logger.info(f"Built author lookup index from graph: {len(author_lookup)} unique author name pairs found")
+        
+        return author_lookup
+    
+    author_lookup = build_author_lookup_index(g)
+    timings["Author Graph Lookup Index Build"] = time.time() - t_start
+    
     logger.info(f"STAGE: Starting OpenAlex API Interaction and Graph Lookup")
     t_start = time.time()
 
@@ -244,19 +273,11 @@ def main_test_run(sample_n: int):
 
         if pd.notna(first_name) and pd.notna(last_name):
             # Escape names for SPARQL query
-            sparql_first_name = str(first_name).replace('"', '""')
-            sparql_last_name = str(last_name).replace('"', '""')
+            # Look up in author index
+            lookup_key = (str(first_name).lower(), str(last_name).lower())
+            author_uri_from_graph = author_lookup.get(lookup_key)
 
-            query = f"""
-                SELECT ?author_uri WHERE {{
-                    ?author_uri hcr:firstName ?fn ;
-                                hcr:lastName ?ln .
-                    FILTER(LCASE(STR(?fn)) = LCASE("{sparql_first_name}") && LCASE(STR(?ln)) = LCASE("{sparql_last_name}"))
-                }} LIMIT 1
-            """
-            results = list(g.query(query))
-            if results:
-                author_uri_from_graph = str(results[0][0])
+            if author_uri_from_graph:
                 openalex_ids.append(author_uri_from_graph)
                 found_in_graph_count += 1
                 logger.info(f"Processing author row {process_author_row_calls} of {len(sample_df)} for name: '{combined_name_for_api}' (found in local graph)")
