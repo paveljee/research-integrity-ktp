@@ -31,28 +31,38 @@
 
 ## Data Sampling and Matching
 - Total names in Excel: 6886
-- Sampled 4000 names (random_state=42).
+- Sampled 1000 names (random_state=42).
 - Finding OpenAlex IDs (top_k=1, highest relevance only).
-- Processed 4000 names:
-  - Found in local graph (API call skipped): 3046
-  - API calls attempted: 954
-  - API calls succeeded (found OpenAlex ID): 951
-  - API calls failed (no OpenAlex ID found): 3
-- Full API search results saved to: `test_run_outputs/data/api_full_results/1751520447.json`
-- Found 3997 unique OpenAlex IDs for the sample.
-- Loading data from Parquet files for matched OpenAlex IDs.
-- Successfully read 3832 matching records from authors parquet.
-- Successfully read 3832 matching records from author details parquet.
-- Collated DataFrame has 3997 rows and 23 columns.
-- Successfully saved collated data to `test_run_outputs/data/collated_sample_data.parquet`.
-- Successfully saved collated data to `test_run_outputs/data/collated_sample_data.csv`.
+- Executed a parametrized alternative to the following SPARQL query against the master graph:
+    ```
+    SELECT ?author_uri ?fn ?ln WHERE {
+            ?author_uri hcr:firstName ?fn ;
+                        hcr:lastName ?ln .
+        }
+    ```
+- Query results: 3908 unique author name pairs found
+- Processed 1000 names:
+  - Found in local graph (API call skipped): 999
+  - API calls attempted: 1
+  - API calls succeeded (found OpenAlex ID): 0
+  - API calls failed (no OpenAlex ID found): 1
+- Full API search results saved to: `test_run_outputs/data/api_full_results/1751550196.json`
+- Found 0 unique OpenAlex IDs for the sample.
+- No OpenAlex IDs found for the sample. Cannot proceed.
 
-## RDF Graph Generation
-- Master graph currently has 67208 triples before adding new data from this run.
-- Successfully saved master RDF graph to `test_run_outputs/data/master_knowledge_graph.ttl`.
-- Master RDF Graph now contains 95701 triples.
+## Pipeline Execution Timing
+- Master Graph Parsing: 1.2141 seconds
+- Input File Hashing: 0.0002 seconds
+- Get Authors Parquet Stats: 1.1128 seconds
+- Get Author Details Parquet Stats: 1.8663 seconds
+- Excel Reading: 0.1792 seconds
+- Author Graph Lookup Index Build: 11.0790 seconds
+- OpenAlex API Interaction and Graph Lookup: 0.2714 seconds
+
+Total execution time: 15.73 seconds.
 
 ### RDF Triple Statistics
+- Master RDF Graph now contains 87007 triples.
 - Analyzing 21 unique predicates:
 
 #### Predicate 1: `hcr:category`
@@ -116,10 +126,10 @@
   - Count of distinct values: 3832
   - Top 5 most frequent values:
     - `2024-12-25 10:21:39.790135`: 1 occurrences
-    - `2024-12-30 04:47:17.092696`: 1 occurrences
-    - `2024-12-30 04:13:11.779804`: 1 occurrences
-    - `2024-12-30 20:52:53.136016`: 1 occurrences
-    - `2024-12-30 04:05:01.752258`: 1 occurrences
+    - `2024-12-28 15:27:53.244109`: 1 occurrences
+    - `2024-12-27 11:03:40.385192`: 1 occurrences
+    - `2024-12-28 00:53:11.807902`: 1 occurrences
+    - `2024-12-26 14:20:00.923637`: 1 occurrences
 
 #### Predicate 7: `schema1:alternateName`
 - Total occurrences: 3832
@@ -127,19 +137,19 @@
   - Count of distinct values: 3832
   - Top 5 most frequent values:
     - `["A.J. vanderGoot", "A.‐J. van der Goot", "Atze Jan Van Der Goot", "A. J. Van Der Goot", "Atze J. van der Goot", "Atze‐Jan van der Goot", "A Van Der Goot"]`: 1 occurrences
-    - `["Q. Zhang", "Q.‐E. Zhang", "Zhang Qiang", "Z Qiang", "Qiang Zhang", "Xue‐Qiang Zhang"]`: 1 occurrences
-    - `["S. C. Chen", "Chen Shuo", "Shuo Chen", "S. Chen"]`: 1 occurrences
-    - `["X. Zhang", "Xiang Zhang", "Xiang Yong ZHANG", "Xuekai Zhang", "Xiang Zhang ‐"]`: 1 occurrences
-    - `["Xiaogang Liu", "X. Liu", "Xiao‐Gang Liu", "Xiaogang Liu ‐", "Liu Xiaogang", "Liu Xiao‐gang"]`: 1 occurrences
+    - `["Y. L. Xiong", "Youling Xiong", "Yucong Xiong", "Youling L. Xiong", "Y Xiong", "Y.L Xiong"]`: 1 occurrences
+    - `["Benjamin Levine Ebert", "Benjamin Ebert", "B. L. Ebert", "B.A.R. Ebert", "B. Ebert", "Benjamin A. R. Ebert", "Benjamin L. Ebert", "B.L Ebert"]`: 1 occurrences
+    - `["C. E. Lovelock", "C. Lovelock", "Catherine Ellen Lovelock", "CatherineE. Lovelock", "Catherine E. Lovelock", "Lovelock Ce", "Catherine Lovelock", "Ce Lovelock", "Caroline Lovelock"]`: 1 occurrences
+    - `["Yves Van De Peer", "Yves De Peer", "Y. Van De Peer", "Y VANDEPEER", "Yves Van Peer", "Yves Van de Peer§", "Yves Van der Peer", "Yves Peer", "Y. van der Peer"]`: 1 occurrences
 
 #### Predicate 8: `schema1:citation`
-- Total occurrences: 8678
+- Total occurrences: 5780
 - **Numeric Values Statistics:**
-  - Count: 8678
-  - Mean: 47665.65
-  - Median: 32649.00
-  - Q1 (25th percentile): 18433.00
-  - Q3 (75th percentile): 58720.00
+  - Count: 5780
+  - Mean: 47672.16
+  - Median: 32624.50
+  - Q1 (25th percentile): 18445.00
+  - Q3 (75th percentile): 58635.25
 
 #### Predicate 9: `schema1:name`
 - Total occurrences: 3867
@@ -147,10 +157,10 @@
   - Count of distinct values: 3867
   - Top 5 most frequent values:
     - `Atze van der Goot`: 1 occurrences
-    - `Changyun Wen`: 1 occurrences
-    - `Shuicheng Yan`: 1 occurrences
-    - `Qiang Zhang`: 1 occurrences
-    - `Xue-Qiang Zhang`: 1 occurrences
+    - `Tobias Kippenberg`: 1 occurrences
+    - `Tony James`: 1 occurrences
+    - `Brendan Manning`: 1 occurrences
+    - `Tamsin Ford`: 1 occurrences
 
 #### Predicate 10: `schema1:url`
 - Total occurrences: 3832
@@ -158,19 +168,19 @@
   - Count of distinct values: 3832
   - Top 5 most frequent values:
     - `ns1:A5000027835`: 1 occurrences
-    - `ns1:A5100381911`: 1 occurrences
-    - `ns1:A5100366873`: 1 occurrences
-    - `ns1:A5100368854`: 1 occurrences
-    - `ns1:A5100369566`: 1 occurrences
+    - `ns1:A5070903399`: 1 occurrences
+    - `ns1:A5070668676`: 1 occurrences
+    - `ns1:A5070671904`: 1 occurrences
+    - `ns1:A5070738091`: 1 occurrences
 
 #### Predicate 11: `schema1:workExample`
-- Total occurrences: 8678
+- Total occurrences: 5780
 - **Numeric Values Statistics:**
-  - Count: 8678
-  - Mean: 621.28
-  - Median: 457.00
-  - Q1 (25th percentile): 246.00
-  - Q3 (75th percentile): 785.00
+  - Count: 5780
+  - Mean: 622.54
+  - Median: 458.00
+  - Q1 (25th percentile): 247.75
+  - Q3 (75th percentile): 788.00
 
 #### Predicate 12: `sciscinet:avg_c10`
 - Total occurrences: 3832
@@ -191,13 +201,13 @@
   - Q3 (75th percentile): 2.97
 
 #### Predicate 14: `sciscinet:h_index`
-- Total occurrences: 8678
+- Total occurrences: 5780
 - **Numeric Values Statistics:**
-  - Count: 8678
-  - Mean: 105.72
+  - Count: 5780
+  - Mean: 105.81
   - Median: 97.00
   - Q1 (25th percentile): 69.00
-  - Q3 (75th percentile): 132.00
+  - Q3 (75th percentile): 133.00
 
 #### Predicate 15: `sciscinet:orcid`
 - Total occurrences: 3672
@@ -205,10 +215,10 @@
   - Count of distinct values: 3672
   - Top 5 most frequent values:
     - `https://orcid.org/0000-0001-8005-7864`: 1 occurrences
-    - `https://orcid.org/0000-0001-9582-179X`: 1 occurrences
-    - `https://orcid.org/0000-0002-7787-0122`: 1 occurrences
-    - `https://orcid.org/0000-0001-8078-640X`: 1 occurrences
-    - `https://orcid.org/0000-0002-1161-7351`: 1 occurrences
+    - `https://orcid.org/0000-0003-1024-5602`: 1 occurrences
+    - `https://orcid.org/0000-0001-7294-480X`: 1 occurrences
+    - `https://orcid.org/0000-0002-5803-0718`: 1 occurrences
+    - `https://orcid.org/0000-0002-0048-8849`: 1 occurrences
 
 #### Predicate 16: `sciscinet:pgf_author`
 - Total occurrences: 3604
@@ -245,10 +255,10 @@
   - Count of distinct values: 3876
   - Top 5 most frequent values:
     - `Category from HCR`: 1 occurrences
-    - `Author: Jian Li (A5100402427)`: 1 occurrences
-    - `Author: Ning Zhang (A5100381753)`: 1 occurrences
-    - `Author: Shuicheng Yan (A5100381753)`: 1 occurrences
-    - `Author: Qiang Zhang (A5100381911)`: 1 occurrences
+    - `Author: Alan Aspuru-Guzik (A5071495561)`: 1 occurrences
+    - `Author: Karen Nelson (A5070836198)`: 1 occurrences
+    - `Author: Tony James (A5070852723)`: 1 occurrences
+    - `Author: Brendan Manning (A5070888686)`: 1 occurrences
 
 #### Predicate 20: `owl:sameAs`
 - Total occurrences: 3672
@@ -256,10 +266,10 @@
   - Count of distinct values: 3672
   - Top 5 most frequent values:
     - `ns2:0000-0001-8005-7864`: 1 occurrences
-    - `ns2:0000-0001-9582-179X`: 1 occurrences
-    - `ns2:0000-0002-7787-0122`: 1 occurrences
-    - `ns2:0000-0001-8078-640X`: 1 occurrences
-    - `ns2:0000-0002-1161-7351`: 1 occurrences
+    - `ns2:0000-0003-1024-5602`: 1 occurrences
+    - `ns2:0000-0001-7294-480X`: 1 occurrences
+    - `ns2:0000-0002-5803-0718`: 1 occurrences
+    - `ns2:0000-0002-0048-8849`: 1 occurrences
 
 #### Predicate 21: `foaf:name`
 - Total occurrences: 3832
@@ -269,20 +279,5 @@
     - `Yu Wang`: 2 occurrences
     - `Yong He`: 2 occurrences
     - `Atze Jan van der Goot`: 1 occurrences
-    - `Qiang Zhang`: 1 occurrences
-    - `Shuo Chen`: 1 occurrences
-
-## Pipeline Execution Timing
-- Master Graph Parsing: 0.8573 seconds
-- Input File Hashing: 0.0020 seconds
-- Get Authors Parquet Stats: 1.1292 seconds
-- Get Author Details Parquet Stats: 1.9482 seconds
-- Excel Reading: 0.1679 seconds
-- OpenAlex API Interaction and Graph Lookup: 973.7745 seconds
-- Authors Parquet Reading: 2.0567 seconds
-- Author Details Parquet Reading: 3.3353 seconds
-- Data Collation: 0.0054 seconds
-- Collated Parquet Saving: 0.0147 seconds
-- Collated CSV Saving: 0.0295 seconds
-- RDF Generation and Serialization: 2.5181 seconds
-- **Overall Script**: 985.9072 seconds
+    - `Tamsin Ford`: 1 occurrences
+    - `Oliver A. Cornely`: 1 occurrences

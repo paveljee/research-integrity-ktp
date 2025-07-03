@@ -100,6 +100,73 @@ def get_parquet_stats(file_path, file_name_for_report):
             f"{file_name_for_report} Error": str(e),
             f"{file_name_for_report} SHA256": current_hash # Still try to return hash
         }
+    
+def build_graph_stats(g: Graph) -> str:
+    report_content = ""
+    # Enhanced RDF Triple Statistics (operates on the master graph 'g')
+    report_content += "\n### RDF Triple Statistics\n"
+    report_content += f"- Master RDF Graph now contains {len(g)} triples.\n"
+    predicates = sorted(list(set(g.predicates())))
+    if not predicates:
+        report_content += "- No predicates found in the graph to analyze.\n"
+    else:
+        report_content += f"- Analyzing {len(predicates)} unique predicates:\n"
+
+    for p_idx, p in enumerate(predicates):
+        p_label = str(p)
+        try:
+            qname = g.qname(p)
+            if qname:
+                p_label = qname
+        except:
+            pass # Keep full URI if qname fails
+
+        report_content += f"\n#### Predicate {p_idx+1}: `{p_label}`\n"
+
+        objects = [o for s, _, o in g.triples((None, p, None))]
+        report_content += f"- Total occurrences: {len(objects)}\n"
+
+        numeric_values = []
+        non_numeric_values = []
+
+        for obj in objects:
+            if isinstance(obj, Literal) and obj.datatype in [XSD.integer, XSD.float, XSD.double, XSD.decimal, XSD.long, XSD.short, XSD.byte, XSD.unsignedByte, XSD.unsignedInt, XSD.unsignedLong, XSD.unsignedShort]:
+                try:
+                    numeric_values.append(float(obj.value))
+                except (ValueError, TypeError):
+                    non_numeric_values.append(str(obj)) # Treat as non-numeric if conversion fails
+            elif isinstance(obj, Literal):
+                non_numeric_values.append(str(obj.value)) # Store the value of the literal
+            else: # URIRef
+                try:
+                    qname_obj = g.qname(obj)
+                    non_numeric_values.append(qname_obj if qname_obj else str(obj))
+                except:
+                    non_numeric_values.append(str(obj))
+
+
+        if numeric_values:
+            series = pd.Series(numeric_values)
+            report_content += "- **Numeric Values Statistics:**\n"
+            report_content += f"  - Count: {len(numeric_values)}\n"
+            report_content += f"  - Mean: {series.mean():.2f}\n"
+            report_content += f"  - Median: {series.median():.2f}\n"
+            report_content += f"  - Q1 (25th percentile): {series.quantile(0.25):.2f}\n"
+            report_content += f"  - Q3 (75th percentile): {series.quantile(0.75):.2f}\n"
+            if len(non_numeric_values) > 0: # If there was a mix
+                report_content += f"  - Also found {len(non_numeric_values)} non-numeric or non-convertible values.\n"
+
+        if non_numeric_values:
+            report_content += "- **Non-Numeric Values Statistics:**\n"
+            report_content += f"  - Count of distinct values: {pd.Series(non_numeric_values).nunique()}\n"
+            value_counts = pd.Series(non_numeric_values).value_counts()
+            report_content += "  - Top 5 most frequent values:\n"
+            for val, count in value_counts.head(5).items():
+                report_content += f"    - `{val}`: {count} occurrences\n"
+            if len(numeric_values) > 0 and not non_numeric_values and not numeric_values: # Edge case if all numeric failed conversion
+                report_content += f"  - Found {len(non_numeric_values)} non-numeric or non-convertible values (originally detected as numeric).\n"
+
+    return report_content
 
 def main_test_run(sample_n: int):
     """Main function for the test run."""
@@ -200,6 +267,7 @@ def main_test_run(sample_n: int):
             report_content += f"- {stage}: {duration:.4f} seconds\n"
         timings["Overall Script"] = time.time() - overall_start_time
         report_content += f"\nTotal execution time: {timings['Overall Script']:.2f} seconds.\n"
+        report_content += build_graph_stats(g)
         with open(os.path.join(OUTPUT_DIR, "test_run_report.md"), "w") as f:
             f.write(report_content)
         logger.error("Error reading Excel. Check report.")
@@ -220,10 +288,10 @@ def main_test_run(sample_n: int):
     t_start = time.time()
     def build_author_lookup_index(g):
         # Full SPARQL query equivalent:
-        # SELECT ?author_uri ?fn ?ln WHERE {
-        #     ?author_uri hcr:firstName ?fn ;
-        #                 hcr:lastName ?ln .
-        # }
+        sparql_query = """SELECT ?author_uri ?fn ?ln WHERE {
+            ?author_uri hcr:firstName ?fn ;
+                        hcr:lastName ?ln .
+        }"""
 
         results = []
 
@@ -237,11 +305,15 @@ def main_test_run(sample_n: int):
         author_lookup = {(str(fn).lower(), str(ln).lower()): str(uri) 
                         for uri, fn, ln in results}
         
+        report_content = f"- Executed a parametrized alternative to the following SPARQL query against the master graph:\n"
+        report_content += f"    ```\n    {sparql_query}\n    ```\n"
+        report_content += f"- Query results: {len(author_lookup)} unique author name pairs found\n"
         logger.info(f"Built author lookup index from graph: {len(author_lookup)} unique author name pairs found")
         
-        return author_lookup
+        return author_lookup, report_content
     
-    author_lookup = build_author_lookup_index(g)
+    author_lookup, added_report_content = build_author_lookup_index(g)
+    report_content += added_report_content
     timings["Author Graph Lookup Index Build"] = time.time() - t_start
     
     logger.info(f"STAGE: Starting OpenAlex API Interaction and Graph Lookup")
@@ -341,6 +413,7 @@ def main_test_run(sample_n: int):
             report_content += f"- {stage}: {duration:.4f} seconds\n"
         timings["Overall Script"] = time.time() - overall_start_time
         report_content += f"\nTotal execution time: {timings['Overall Script']:.2f} seconds.\n"
+        report_content += build_graph_stats(g)
         with open(os.path.join(OUTPUT_DIR, "test_run_report.md"), "w") as f:
             f.write(report_content)
         logger.warning("No OpenAlex IDs matched for the sample. Check report.")
@@ -613,71 +686,7 @@ def main_test_run(sample_n: int):
     try:
         g.serialize(destination=MASTER_GRAPH_FILE, format="turtle")
         report_content += f"- Successfully saved master RDF graph to `{MASTER_GRAPH_FILE}`.\n"
-        report_content += f"- Master RDF Graph now contains {len(g)} triples.\n"
-
-        # Enhanced RDF Triple Statistics (operates on the master graph 'g')
-        report_content += "\n### RDF Triple Statistics\n"
-        predicates = sorted(list(set(g.predicates())))
-        if not predicates:
-            report_content += "- No predicates found in the graph to analyze.\n"
-        else:
-            report_content += f"- Analyzing {len(predicates)} unique predicates:\n"
-
-        for p_idx, p in enumerate(predicates):
-            p_label = str(p)
-            try:
-                qname = g.qname(p)
-                if qname:
-                    p_label = qname
-            except:
-                pass # Keep full URI if qname fails
-
-            report_content += f"\n#### Predicate {p_idx+1}: `{p_label}`\n"
-
-            objects = [o for s, _, o in g.triples((None, p, None))]
-            report_content += f"- Total occurrences: {len(objects)}\n"
-
-            numeric_values = []
-            non_numeric_values = []
-
-            for obj in objects:
-                if isinstance(obj, Literal) and obj.datatype in [XSD.integer, XSD.float, XSD.double, XSD.decimal, XSD.long, XSD.short, XSD.byte, XSD.unsignedByte, XSD.unsignedInt, XSD.unsignedLong, XSD.unsignedShort]:
-                    try:
-                        numeric_values.append(float(obj.value))
-                    except (ValueError, TypeError):
-                        non_numeric_values.append(str(obj)) # Treat as non-numeric if conversion fails
-                elif isinstance(obj, Literal):
-                    non_numeric_values.append(str(obj.value)) # Store the value of the literal
-                else: # URIRef
-                    try:
-                        qname_obj = g.qname(obj)
-                        non_numeric_values.append(qname_obj if qname_obj else str(obj))
-                    except:
-                        non_numeric_values.append(str(obj))
-
-
-            if numeric_values:
-                series = pd.Series(numeric_values)
-                report_content += "- **Numeric Values Statistics:**\n"
-                report_content += f"  - Count: {len(numeric_values)}\n"
-                report_content += f"  - Mean: {series.mean():.2f}\n"
-                report_content += f"  - Median: {series.median():.2f}\n"
-                report_content += f"  - Q1 (25th percentile): {series.quantile(0.25):.2f}\n"
-                report_content += f"  - Q3 (75th percentile): {series.quantile(0.75):.2f}\n"
-                if len(non_numeric_values) > 0: # If there was a mix
-                    report_content += f"  - Also found {len(non_numeric_values)} non-numeric or non-convertible values.\n"
-
-            if non_numeric_values:
-                report_content += "- **Non-Numeric Values Statistics:**\n"
-                report_content += f"  - Count of distinct values: {pd.Series(non_numeric_values).nunique()}\n"
-                value_counts = pd.Series(non_numeric_values).value_counts()
-                report_content += "  - Top 5 most frequent values:\n"
-                for val, count in value_counts.head(5).items():
-                    report_content += f"    - `{val}`: {count} occurrences\n"
-                if len(numeric_values) > 0 and not non_numeric_values and not numeric_values: # Edge case if all numeric failed conversion
-                     report_content += f"  - Found {len(non_numeric_values)} non-numeric or non-convertible values (originally detected as numeric).\n"
-
-
+        report_content += build_graph_stats(g)
     except Exception as e:
         report_content += f"- Error saving or analyzing RDF graph: {e}\n"
     timings["RDF Generation and Serialization"] = time.time() - t_start
