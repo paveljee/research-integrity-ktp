@@ -231,7 +231,11 @@ def main_test_run(sample_n: int):
     # If not, an explicit lowercasing step for sample_df.columns might be needed here or in read_names_from_excel.
     # For this change, we'll rely on the existing behavior of read_names_from_excel.
 
-    for i, (index, row) in enumerate(sample_df.iterrows()): # Use enumerate for progress
+    process_author_row_calls = 0
+    def process_author_row(row):
+        nonlocal found_in_graph_count, api_calls_attempted, api_calls_succeeded, api_calls_failed, process_author_row_calls
+        process_author_row_calls += 1
+
         first_name = row.get('first name')
         last_name = row.get('last name')
         combined_name_for_api = row.get('name') # This is the name used for OpenAlex API call
@@ -255,9 +259,9 @@ def main_test_run(sample_n: int):
                 author_uri_from_graph = str(results[0][0])
                 openalex_ids.append(author_uri_from_graph)
                 found_in_graph_count += 1
-                logger.info(f"Processing OpenAlex request {i+1} of {len(sample_df)} for name: '{combined_name_for_api}' (found in local graph)")
+                logger.info(f"Processing author row {process_author_row_calls} of {len(sample_df)} for name: '{combined_name_for_api}' (found in local graph)")
             else:
-                logger.info(f"Processing OpenAlex request {i+1} of {len(sample_df)} for name: '{combined_name_for_api}' (querying OpenAlex API)")
+                logger.info(f"Processing author row {process_author_row_calls} of {len(sample_df)} for name: '{combined_name_for_api}' (querying OpenAlex API)")
                 # If not in graph by HCR names, call API
                 api_calls_attempted += 1
                 api_id = get_openalex_author_id(combined_name_for_api, all_api_search_results, top_k=1)
@@ -267,7 +271,7 @@ def main_test_run(sample_n: int):
                 else:
                     api_calls_failed += 1
         else:
-            logger.info(f"Processing OpenAlex request {i+1} of {len(sample_df)} for name: '{combined_name_for_api}' (no first/last name for graph lookup, querying OpenAlex API)")
+            logger.info(f"Processing author row {process_author_row_calls} of {len(sample_df)} for name: '{combined_name_for_api}' (no first/last name for graph lookup, querying OpenAlex API)")
             # If no first/last name, fall back to API directly (should not happen with good input data)
             api_calls_attempted += 1
             api_id = get_openalex_author_id(combined_name_for_api, all_api_search_results, top_k=1)
@@ -276,6 +280,8 @@ def main_test_run(sample_n: int):
                 api_calls_succeeded += 1
             else:
                 api_calls_failed += 1
+
+    openalex_ids = sample_df.apply(process_author_row, axis=1).tolist()
 
     sample_df['openalex_id'] = openalex_ids
     timings["OpenAlex API Interaction and Graph Lookup"] = time.time() - t_start
