@@ -47,13 +47,13 @@ This script provides a mechanism to test the pipeline with a sample of data and 
 
 1.  **Load Configuration**: Reads paths from the `.env` file. Adds `import numpy as np`.
 2.  **Input File Statistics**:
-    *   Calculates and records SHA256 hashes for the input Excel and both Parquet files.
-    *   Reads basic metadata from Parquet files (row count, column count, schema).
+    *   Calculates and records SHA256 hashes for input files. For Parquet files, it reads basic metadata (rows, columns, schema) using a JSON-based cache (`test_run_outputs/data/parquet_stats_cache/`) to speed up subsequent runs if files are unchanged.
 3.  **Data Sampling**:
     *   Reads names from the Excel file.
-    *   Takes a random sample of 10 names (configurable, `SEED=42` for reproducibility).
-4.  **OpenAlex Matching**:
-    *   For each sampled name, it calls `get_openalex_author_id` (with `top_k=1`) to find the best OpenAlex ID. It explicitly notes that only the highest relevance match is considered.
+    *   Takes a random sample of names (default 5, configurable; `SEED=42` for reproducibility).
+4.  **Author Matching (Local Graph & OpenAlex)**:
+    *   For each sampled name, it first attempts to find an existing author record in the local master RDF graph (`test_run_outputs/data/master_knowledge_graph.ttl`) by matching `hcr:firstName` and `hcr:lastName`.
+    *   If not found locally, it calls `get_openalex_author_id` (with `top_k=1`) to find the best OpenAlex ID. It explicitly notes that only the highest relevance match is considered. Full JSON responses from OpenAlex API calls are saved to `test_run_outputs/data/api_full_results/`.
 5.  **Parquet Data Retrieval**:
     *   Efficiently reads data *only for the matched OpenAlex IDs* from the `authors` and `author_details` Parquet files using `pyarrow.parquet.read_table` with column selection and row filtering (`filters=[('authorid', 'in', matched_ids)]`).
     *   The specific columns loaded are:
@@ -61,18 +61,18 @@ This script provides a mechanism to test the pipeline with a sample of data and 
         *   Author Details Parquet: `['authorid', 'orcid', 'display_name_alternatives', 'works_count', 'cited_by_count', 'last_known_institution', 'works_api_url', 'updated_date']`
 6.  **Data Collation**:
         *   Merges the sampled names (retaining all original columns from the Excel input), their OpenAlex IDs, and the retrieved data from both Parquet files into a single Pandas DataFrame. Handles potential duplicate column names (e.g., `display_name`).
-7.  **Output Generation**:
-    *   **Parquet File**: Saves the collated DataFrame (which includes all original Excel columns) to `test_run_outputs/collated_sample_data.parquet`.
-    *   **RDF Turtle File**:
-        *   Creates an RDF graph using `rdflib`.
-        *   Binds prefixes for `sciscinet` (custom), `openalex`, `schema` (Schema.org), `dcterms`, `foaf`, `owl`, and `hcr` (a new custom namespace for Human Capital Record data from the input Excel).
-        *   Populates the graph:
-            *   Each matched author is represented as an `openalex:Author` and `sciscinet:Author`.
-            *   Properties from the collated DataFrame (SciSciNet stats, OpenAlex details) are added as RDF triples using appropriate predicates from the defined ontologies (e.g., `schema:name`, `foaf:name`, `sciscinet:h_index`, `sciscinet:orcid`, `schema:affiliation`).
-            *   Specific fields from the original input Excel (First Name, Last Name, Category, Primary Affiliation, Secondary Affiliation) are added using predicates from the new `hcr` namespace (e.g., `hcr:firstName`, `hcr:lastName`).
-            *   OpenAlex IDs (which are URLs) are used as URIs for author entities. ORCID iDs are also added as `owl:sameAs` links.
-            *   Includes robust handling for `display_name_alternatives` to process list-like or array-like data correctly during RDF triple generation.
-        *   Saves the graph to `test_run_outputs/collated_sample_data.ttl`.
+7.  **Output Generation**: All data outputs are placed in the `test_run_outputs/data/` subdirectory, with the report in `test_run_outputs/`.
+    *   **Collated Parquet File**: Saves the DataFrame (including all original Excel columns) to `test_run_outputs/data/collated_sample_data.parquet`.
+    *   **Collated CSV File**: Saves the DataFrame to `test_run_outputs/data/collated_sample_data.csv`, with specific column name prefixes (e.g., `hcr.`, `ssna.`) for clarity.
+    *   **Master RDF Turtle File**:
+        *   Loads an existing `master_knowledge_graph.ttl` from `test_run_outputs/data/` if present, or creates a new graph.
+        *   Binds prefixes (sciscinet, openalex, schema, dcterms, foaf, owl, hcr).
+        *   Populates the graph with new data:
+            *   Authors as `openalex:Author`, `sciscinet:Author`.
+            *   Properties from collated data (SciSciNet stats, OpenAlex details, HCR Excel data) using relevant predicates. OpenAlex IDs serve as URIs; ORCIDs are linked via `owl:sameAs`.
+            *   Handles `display_name_alternatives` correctly.
+        *   Serializes the updated, cumulative graph to `test_run_outputs/data/master_knowledge_graph.ttl`. A backup of the previous version is kept (`.bak`).
+    *   **API Search Results**: Full JSON responses from OpenAlex API searches are saved in `test_run_outputs/data/api_full_results/` (timestamped filenames).
     *   **Markdown Report**:
         *   Generates `test_run_outputs/test_run_report.md`.
         *   Includes:
@@ -88,8 +88,8 @@ This script provides a mechanism to test the pipeline with a sample of data and 
 
 ### 3.4. Ontologies Used in RDF
 
--   **SciSciNet Ontology (`http://sciscinet.org/ontology/`)**: A custom namespace for terms specific to the SciSciNet-derived data, such as `avg_c10`, `productivity`, `h_index`, `pgf_author`. It also defines `sciscinet:Author` as a class.
--   **OpenAlex Namespace (`https://openalex.org/`)**: Used for identifying OpenAlex author entities (e.g., `openalex:A12345678`) and the class `openalex:Author`.
+-   **SciSciNet Ontology (`http://sciscinet.org/ontology/`)**: A custom namespace for SciSciNet-derived data, e.g., `avg_c10`, `productivity`, `h_index`, `p_gf`, `p_gf_inference_sources`, `p_gf_inference_counts`, `orcid`. Defines `sciscinet:Author` class and properties like `sciscinet:hasOpenAlexID`.
+-   **OpenAlex Namespace (`https://openalex.org/`)**: Used for OpenAlex author URIs (e.g., `openalex:A12345678`) and the `openalex:Author` class.
 -   **Schema.org (`http://schema.org/`)**: For general-purpose properties like `name`, `alternateName`, `affiliation`, `url`, `workExample` (as a proxy for works_count), `citation` (as a proxy for cited_by_count).
 -   **Friend of a Friend (FOAF - `http://xmlns.com/foaf/0.1/`)**: For `foaf:name`.
 -   **Dublin Core Terms (DCTERMS - `http://purl.org/dc/terms/`)**: For `dcterms:modified`.
@@ -145,11 +145,13 @@ pip install -r requirements.txt
     ```
 
 3.  **Review Outputs**:
-    *   The script will create a directory named `test_run_outputs`.
-    *   Inside this directory, you will find:
-        *   `collated_sample_data.parquet`: The collated data for the sample in Parquet format.
-        *   `collated_sample_data.ttl`: The RDF Turtle representation of the sample data.
-        *   `test_run_report.md`: The Markdown report detailing the test run.
+    *   Outputs are in the `test_run_outputs/` directory. The main report is directly within, while data files are in a `data/` subdirectory.
+    *   Key outputs include:
+        *   `test_run_outputs/test_run_report.md`: The Markdown report.
+        *   `test_run_outputs/data/master_knowledge_graph.ttl`: The cumulative RDF graph.
+        *   `test_run_outputs/data/collated_sample_data.parquet`: Collated data in Parquet format.
+        *   `test_run_outputs/data/collated_sample_data.csv`: Collated data in CSV format.
+        *   `test_run_outputs/data/api_full_results/`: Directory containing JSON files of OpenAlex API responses.
 
 ## 6. Code Generation and Session Log (Interaction with Jules AI)
 
