@@ -32,12 +32,11 @@ An example `.env.example` file is provided.
 
 ### 3.2. Core Script: `match_authors.py`
 
-This script contains the foundational functions for the pipeline:
+This script contains foundational functions. It can be configured with an `OPENALEX_EMAIL` environment variable for the OpenAlex polite pool.
 
--   `read_names_from_excel(file_path)`: Reads a list of names from the specified Excel file (expects a 'name' column).
--   `get_openalex_author_id(author_name, top_k=1)`: Queries OpenAlex for a given author name and returns the OpenAlex ID of the most relevant match (based on `works_count` and `relevance_score`). The `top_k` parameter controls how many matches are returned (default is 1).
--   `load_parquet_to_dataframe(file_path)`: Loads a Parquet file into a Pandas DataFrame.
--   `main()`: Orchestrates the full matching and data retrieval process (primarily for standalone execution, not used by `test_run.py`).
+-   `read_names_from_excel(file_path)`: Reads an Excel file. If a 'name' column is absent, it attempts to create one by combining 'first name' (using only its first word) and 'last name'. Returns the full Pandas DataFrame with lowercase column names.
+-   `get_openalex_author_id(author_name, all_search_results_accumulator, top_k=1)`: Queries OpenAlex for `author_name`. Sorts results by `relevance_score` (descending), then `works_count` (descending). Returns the top OpenAlex ID(s). All raw search results for the name are added to `all_search_results_accumulator`. Includes a brief sleep for API politeness.
+-   `load_parquet_to_dataframe(file_path)`: Loads a local Parquet file into a Pandas DataFrame.
 
 ### 3.3. Test and Reporting Script: `test_run.py`
 
