@@ -339,6 +339,16 @@ The user pointed out that the repository contains `pyproject.toml` (for Poetry) 
     2.  *Content Drafting*: A concise note was drafted, explaining the purpose of these files and stating that the README's main instructions would continue to focus on `requirements.txt`. Links to Poetry and Conda documentation were included.
     3.  *README Update (Section 4)*: The drafted note was added to Section 4, after the `pip install -r requirements.txt` instructions, ensuring the primary workflow remained prominent.
 
+**Review and Update of "Future Work" Section**
+
+The user requested a review of Section 7 ("Future Work") to ensure it remained up-to-date with the project's current state and recent developments.
+
+*   **User Request**: Review and update the "Future Work" section of the README.
+*   **Jules' Actions**:
+    1.  *Review Existing Items*: Jules reviewed the current "Future Work" list and confirmed the continued relevance of all items, noting that basic logging was implemented but the call for "more comprehensive and structured" logging was still valid.
+    2.  *Consider New Items*: Based on recent changes and general project progression, Jules identified potential new items, specifically "Knowledge Graph Maintenance and Evolution" and a "Formal Testing Suite."
+    3.  *Drafting and Integration*: Jules drafted these two new points and integrated them into Section 7. A minor clarification was also made to the "Ontology Enrichment" point to include the `hcr` ontology.
+
 **Observations on AI Collaboration:**
 
 Jules demonstrated a strong ability to understand complex, multi-part requests and translate them into a structured plan. The AI was responsive to iterative feedback, incorporating new requirements. The implementation of efficient Parquet reading, detailed RDF generation, and the creation of this README were key contributions. The interactive debugging phase, though involving several steps, highlighted the AI's capability to analyze errors, propose solutions, and refine them until the issue was resolved, ultimately leading to a functional script and validated output. The AI also handled the creation of complex dummy data based on partial specifications and updated documentation post-hoc. The follow-up sessions further showcased Jules' ability to integrate new features systematically into the existing codebase and documentation.
@@ -346,9 +356,11 @@ Jules demonstrated a strong ability to understand complex, multi-part requests a
 ## 7. Future Work
 
 -   **Error Handling and Logging**: Enhance robustness with more comprehensive error handling and structured logging.
+-   **Formal Testing Suite**: Implement unit and integration tests (e.g., using pytest) to ensure code reliability and support ongoing development and refactoring.
 -   **Scalability**: For very large input Excel files, consider chunking or streaming approaches.
 -   **Advanced Disambiguation**: Implement more sophisticated author disambiguation logic if the default OpenAlex ranking is insufficient for specific use cases.
--   **Ontology Enrichment**: Further develop the `sciscinet` ontology with more formal axioms and relationships. Map more fields to existing standard ontologies where appropriate.
+-   **Ontology Enrichment**: Further develop the `sciscinet` and `hcr` ontologies with more formal axioms and relationships. Map more fields to existing standard ontologies where appropriate.
+-   **Knowledge Graph Management**: Develop strategies for the long-term maintenance of the cumulative `master_knowledge_graph.ttl`, considering aspects like data versioning, schema evolution, and performance optimization as the graph grows.
 -   **Configuration File**: For more complex configurations, move beyond `.env` to a dedicated configuration file (e.g., YAML or TOML).
 -   **Full Pipeline Script**: While `test_run.py` serves as a good example, a separate script could be developed to run the full pipeline on an entire Excel file without sampling, if needed, and outputting the full results.
 -   **Dummy Data Management**: Consider if the `dummy_data` (and `.env` pointing to it) should be part of the repository for easier re-testing, perhaps with a note about its purpose.
