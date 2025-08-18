@@ -1,0 +1,70 @@
+Assumptions:
+-----------
+Column name containing category: 'category'
+22 categories are known ad hoc, as follows:
+Category labels suggestive of relevance to human health/biomedicine:
+- biology/biochemistry
+- clinical medicine
+- cross-field
+- immunology
+- microbiology
+- molecular biology/genetics
+- neuroscience/behavior
+- pharmacology/toxicology
+- psychiatry/psychology
+- social sciences
+Not suggestive categories:
+- agricultural sciences
+- chemistry
+- computer science
+- economics/business
+- engineering
+- environment/ecology
+- geosciences
+- materials science
+- mathematics
+- physics
+- plant/animal science
+- space science
+
+Analysis:
+-------
+Row count per file (i.e., per year):
+
+
+CSV of all categories written to: category_counts_2025-08-18.csv
+- 2014_HCR.xlsx: 3215 (health/biomedicine: 1538, 47.8%; plus cross-field: 0, 0.0%)
+
+CSV of all categories written to: category_counts_2025-08-18.csv
+- 2015_HCR.xlsx: 3126 (health/biomedicine: 1558, 49.8%; plus cross-field: 0, 0.0%)
+
+CSV of all categories written to: category_counts_2025-08-18.csv
+- 2016_HCR.xlsx: 3266 (health/biomedicine: 1603, 49.1%; plus cross-field: 0, 0.0%)
+
+CSV of all categories written to: category_counts_2025-08-18.csv
+- 2017_HCR.xlsx: 3538 (health/biomedicine: 1696, 47.9%; plus cross-field: 0, 0.0%)
+
+CSV of all categories written to: category_counts_2025-08-18.csv
+- 2018_HCR.xlsx: 6079 (health/biomedicine: 2020, 33.2%; plus cross-field: 2020, 33.2%)
+
+CSV of all categories written to: category_counts_2025-08-18.csv
+- 2019_HCR.xlsx: 6216 (health/biomedicine: 1825, 29.4%; plus cross-field: 2491, 40.1%)
+
+CSV of all categories written to: category_counts_2025-08-18.csv
+- 2020_HCR.xlsx: 6389 (health/biomedicine: 1990, 31.1%; plus cross-field: 2493, 39.0%)
+
+CSV of all categories written to: category_counts_2025-08-18.csv
+- 2021_HCR.xlsx: 6602 (health/biomedicine: 1907, 28.9%; plus cross-field: 2828, 42.8%)
+
+CSV of all categories written to: category_counts_2025-08-18.csv
+- 2022_HCR.xlsx: 7221 (health/biomedicine: 2157, 29.9%; plus cross-field: 3240, 44.9%)
+
+CSV of all categories written to: category_counts_2025-08-18.csv
+- 2023_HCR.xlsx: 7127 (health/biomedicine: 2136, 30.0%; plus cross-field: 3329, 46.7%)
+
+CSV of all categories written to: category_counts_2025-08-18.csv
+- 2024_HCR.xlsx: 6886 (health/biomedicine: 2042, 29.7%; plus cross-field: 3326, 48.3%)
+
+Total rows (excluding headers): 59665
+
+Of these, in health: 20472, 34.3%; in cross-field: 19727, 33.1%
