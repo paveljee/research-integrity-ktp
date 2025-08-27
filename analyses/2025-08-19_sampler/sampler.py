@@ -174,4 +174,7 @@ def concat_and_sample_fixed_seed(folder_path, output_csv_path, seed=42, n=1, aff
 
     print(f"{n} samples saved to {output_csv_path}")
 
-concat_and_sample_fixed_seed('/path/to/2024-Historical-Highly-Cited-Researchers-lists - final', "random_samples_2025-08-18.csv", seed=42, n=20, affiliation_sort=True)
+from datetime import datetime, timedelta, timezone
+concat_and_sample_fixed_seed("/path/to/2024-Historical-Highly-Cited-Researchers-lists - final", f"random_samples_{datetime.now(timezone(timedelta(hours=-4))).strftime("%Y-%m-%d")}.csv", seed=42, n=40, affiliation_sort=True)
+# NOTE: Manually replace the generated file with ALL the previous sample(s) to adjust the starting draw number, and then regenerate. Then remove the previous lines.
+# TODO: Implement this fully in code.
