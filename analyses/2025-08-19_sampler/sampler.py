@@ -116,7 +116,7 @@ def concat_and_sample_fixed_seed(folder_path, output_csv_path, seed=42, n=1, aff
             prev = pd.read_csv(output_csv_path)
             if DRAW_LABEL in prev.columns and not prev.empty:
                 # When reading previous CSV, decrement to match RNG state
-                last_draw = prev[DRAW_LABEL].iloc[-1] - 1
+                last_draw = prev[DRAW_LABEL].max() - 1
         except Exception as e:
             print(f"Could not read previous CSV: {e}")
 
