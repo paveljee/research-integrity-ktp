@@ -183,10 +183,7 @@ def concat_and_select_fixed_names_from_2024(excel_file_path, output_csv_path, na
     sampled_df = sampled_df[cols]
 
     # Save to CSV
-    if os.path.exists(output_csv_path) and os.path.getsize(output_csv_path) > 0:
-        sampled_df.to_csv(output_csv_path, mode="a", index=False, header=False)
-    else:
-        sampled_df.to_csv(output_csv_path, index=False, header=True)
+    sampled_df.to_csv(output_csv_path, index=False, header=True)
 
     print(f"Matching rows saved to {output_csv_path}")
 
