@@ -1,13 +1,11 @@
-hcr.filename,hcr.row_number,hcr.first_name,hcr.last_name,hcr.category,hcr.primary_affiliation,hcr.secondary_affiliation
-2024_HCR.xlsx,1890,Bin,Gao,Cross-Field,"Rice University, United States",
-2024_HCR.xlsx,383,Beatriz Roldan,Cuenya,Chemistry,"Ruhr University Bochum, Germany",
-2024_HCR.xlsx,551,Lizhi,Zhang,Chemistry,"Shanghai Jiao Tong University, China Mainland",
-2024_HCR.xlsx,4713,Lizhi,Zhang,Environment and Ecology,"Central China Normal University, China Mainland",
-2024_HCR.xlsx,657,Rudolf A.,de Boer,Clinical Medicine,"Erasmus MC, Netherlands","University of Groningen, Netherlands"
-2024_HCR.xlsx,1164,Hidenori,Arai,Cross-Field,"National Center for Geriatrics & Gerontology, Japan",
-2024_HCR.xlsx,1327,Mark A.,Bradford,Cross-Field,"Yale University, United States",
-2024_HCR.xlsx,1010,Salim,Yusuf,Clinical Medicine,"McMaster University, Canada",
-2024_HCR.xlsx,968,Nicholas C.,Turner,Clinical Medicine,"Institute of Cancer Research - UK, United Kingdom","Royal Marsden NHS Foundation Trust, United Kingdom"
-2024_HCR.xlsx,359,Osman M.,Bakr,Chemistry,"King Abdullah University of Science & Technology, Saudi Arabia",
-2024_HCR.xlsx,5091,Osman M.,Bakr,Materials Science,"King Abdullah University of Science & Technology, Saudi Arabia",
-2024_HCR.xlsx,6104,Rainer,Blatt,Physics,"University of Innsbruck, Austria","Austrian Academy of Sciences, Austria"
+ktp.draw_number,hcr.filename,hcr.row_number,ktp.priority,hcr.first_name,hcr.last_name,hcr.category,hcr.primary_affiliation,hcr.secondary_affiliation
+pilot.1,2024_HCR.xlsx,1890,5,Bin,Gao,Cross-Field,"Rice University, United States",
+pilot.2,2024_HCR.xlsx,383,4,Beatriz Roldan,Cuenya,Chemistry,"Ruhr University Bochum, Germany",
+pilot.3,2024_HCR.xlsx,551,2,Lizhi,Zhang,Chemistry,"Shanghai Jiao Tong University, China Mainland",
+pilot.4,2024_HCR.xlsx,657,4,Rudolf A.,de Boer,Clinical Medicine,"Erasmus MC, Netherlands","University of Groningen, Netherlands"
+pilot.5,2024_HCR.xlsx,1164,3,Hidenori,Arai,Cross-Field,"National Center for Geriatrics & Gerontology, Japan",
+pilot.6,2024_HCR.xlsx,1327,5,Mark A.,Bradford,Cross-Field,"Yale University, United States",
+pilot.7,2024_HCR.xlsx,1010,5,Salim,Yusuf,Clinical Medicine,"McMaster University, Canada",
+pilot.8,2024_HCR.xlsx,968,5,Nicholas C.,Turner,Clinical Medicine,"Institute of Cancer Research - UK, United Kingdom","Royal Marsden NHS Foundation Trust, United Kingdom"
+pilot.9,2024_HCR.xlsx,359,3,Osman M.,Bakr,Chemistry,"King Abdullah University of Science & Technology, Saudi Arabia",
+pilot.10,2024_HCR.xlsx,6104,4,Rainer,Blatt,Physics,"University of Innsbruck, Austria","Austrian Academy of Sciences, Austria"

@@ -111,7 +111,7 @@ def concat_dfs_from_file_list(excel_file_paths: list[str]):
 
         return full_df
 
-def concat_and_select_fixed_names_from_2024(excel_file_path, output_csv_path, name_pairs: list[tuple[str, str]], affiliation_sort=False):
+def concat_and_select_fixed_names_from_2024(excel_file_path, output_csv_path, name_category_triples: list[tuple[str, str, str]], affiliation_sort: bool | None=None):
     if not (str(excel_file_path).endswith('.xlsx') and '2024' in str(excel_file_path)):
         raise RuntimeError("Only 2024 xlsx is supported")
     print('HCR list sampling\n-----------------')
@@ -129,26 +129,30 @@ def concat_and_select_fixed_names_from_2024(excel_file_path, output_csv_path, na
             print(f"Failed to handle previous CSV: {e}")
             raise
 
-    print(f"Selecting matching name pairs:\n{"\n".join([str(t) for t in name_pairs])}")
+    print(f"Selecting matching name-category triples:\n{"\n".join([str(t) for t in name_category_triples])}")
     sampled_df = (
         full_df[
-            full_df[["hcr.first_name", "hcr.last_name"]]
+            full_df[["hcr.first_name", "hcr.last_name", "hcr.category"]]
             .apply(tuple, axis=1)
-            .isin(name_pairs)
+            .isin(name_category_triples)
         ]
         .assign(
-            __order=lambda x: x[["hcr.first_name", "hcr.last_name"]]
+            __order=lambda x: x[["hcr.first_name", "hcr.last_name", "hcr.category"]]
             .apply(tuple, axis=1)
-            .map({pair: i for i, pair in enumerate(name_pairs)})
+            .map({pair: i for i, pair in enumerate(name_category_triples)})
         )
         .sort_values("__order")
         .drop(columns="__order")
         .copy()
     )
 
+    # Assign draw numbers for logging (respecting order from interim pilot results from 2025-07-24 docx)
+    sampled_df[DRAW_LABEL] = "pilot." + (sampled_df.reset_index(drop=True).index + 1).astype(str)
+
+
     # Apply any per-row logic (like printing)
     sampled_df.apply(
-        lambda r: print(f"First Name \"{r["hcr.first_name"]}\", Last Name \"{r["hcr.last_name"]}\": File '{r[HCR_LIST_LABEL]}', Row {r[HCR_ROW_LABEL]}:\n{r}"),
+        lambda r: print(f"\nDraw #{r[DRAW_LABEL]}, First Name {r["hcr.first_name"]!r}, Last Name {r["hcr.last_name"]!r}: File '{r[HCR_LIST_LABEL]}', Row {r[HCR_ROW_LABEL]}:\n{r}"),
         axis=1
     )
 
@@ -177,9 +181,7 @@ def concat_and_select_fixed_names_from_2024(excel_file_path, output_csv_path, na
             sampled_df = sampled_df.sort_values([PRIORITY_LABEL, DRAW_LABEL])
 
     # Reorder columns: metadata first
-    first_cols = [HCR_LIST_LABEL, HCR_ROW_LABEL]
-    if affiliation_sort:
-        first_cols.append(PRIORITY_LABEL)
+    first_cols = [DRAW_LABEL, HCR_LIST_LABEL, HCR_ROW_LABEL, PRIORITY_LABEL]
     cols = first_cols + [c for c in sampled_df.columns if c not in first_cols]
     sampled_df = sampled_df[cols]
 
@@ -189,23 +191,24 @@ def concat_and_select_fixed_names_from_2024(excel_file_path, output_csv_path, na
     print(f"Matching rows saved to {output_csv_path}")
 
 # manually copied and pasted on 2025-12-23 from interim pilot results from 2025-07-24 docx
-name_pairs = [
-    ("Bin","Gao"),                  # 1
-    ("Beatriz Roldan","Cuenya"),    # 2
-    ("Lizhi","Zhang"),              # 3
-    ("Rudolf A.","de Boer"),        # 4
-    ("Hidenori","Arai"),            # 5
-    ("Mark A.","Bradford"),         # 6
-    ("Salim","Yusuf"),              # 7
-    ("Nicholas C.","Turner"),       # 8
-    ("Osman M.","Bakr"),            # 9
-    ("Rainer","Blatt"),             # 10
+name_category_triples = [
+    ("Bin","Gao","Cross-Field"),                    # 1
+    ("Beatriz Roldan","Cuenya","Chemistry"),        # 2
+    ("Lizhi","Zhang","Chemistry"),                  # 3
+    ("Rudolf A.","de Boer","Clinical Medicine"),    # 4
+    ("Hidenori","Arai","Cross-Field"),              # 5
+    ("Mark A.","Bradford","Cross-Field"),           # 6
+    ("Salim","Yusuf","Clinical Medicine"),          # 7
+    ("Nicholas C.","Turner","Clinical Medicine"),   # 8
+    ("Osman M.","Bakr","Chemistry"),                # 9
+    ("Rainer","Blatt","Physics"),                   # 10
 ]
 
-concat_and_select_fixed_names_from_2024("/path/to/2024-Historical-Highly-Cited-Researchers-lists - final/2024_HCR.xlsx", f"pilot_sample_2025-07-24.csv", name_pairs=name_pairs, affiliation_sort=False)
-# It is interesting that the table contains two more rows, for a total of 12 (non-header) rows.
+concat_and_select_fixed_names_from_2024("/path/to/2024-Historical-Highly-Cited-Researchers-lists - final/2024_HCR.xlsx", f"pilot_sample_2025-07-24.csv", name_category_triples=name_category_triples, affiliation_sort=False)
+# It is interesting that if we do not take category into filtering, the table contains two more rows, for a total of 12 (non-header) rows.
 # The additional rows have been confirmed to be:
 # 2024_HCR.xlsx,4713,Lizhi,Zhang,Environment and Ecology,"Central China Normal University, China Mainland",
 # 2024_HCR.xlsx,5091,Osman M.,Bakr,Materials Science,"King Abdullah University of Science & Technology, Saudi Arabia",
 # This is because these researchers were featured twice on the 2024 HCR list.
 # These two additional rows were not used in the pilot.
+# While these two rows highlight the nuance of deduplication in this dataset, to ensure full alignment with the pilot sample actually used and to be able to assign ktp draw numbers (with a special `pilot.` prefix) to ensure full shape equality, these two rows are not present in `pilot_sample_2025-07-24.csv`.
