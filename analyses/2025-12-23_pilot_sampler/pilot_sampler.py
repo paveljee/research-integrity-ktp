@@ -39,6 +39,7 @@ HCR_LIST_LABEL = 'hcr.filename'
 DRAW_LABEL = 'ktp.draw_number'
 HCR_ROW_LABEL = 'hcr.row_number'
 PRIORITY_LABEL = 'ktp.priority'
+MATCHING_COLS = ["hcr.first_name", "hcr.last_name", "hcr.category"]
 
 COUNTRY_PREFIX = ', '
 ENGLISH_HICS = ['United States','USA','U.S.A.','US','U.S.','United Kingdom','UK','U.K.','Australia','Canada','New Zealand']
@@ -132,12 +133,12 @@ def concat_and_select_fixed_names_from_2024(excel_file_path, output_csv_path, na
     print(f"Selecting matching name-category triples:\n{"\n".join([str(t) for t in name_category_triples])}")
     sampled_df = (
         full_df[
-            full_df[["hcr.first_name", "hcr.last_name", "hcr.category"]]
+            full_df[MATCHING_COLS]
             .apply(tuple, axis=1)
             .isin(name_category_triples)
         ]
         .assign(
-            __order=lambda x: x[["hcr.first_name", "hcr.last_name", "hcr.category"]]
+            __order=lambda x: x[MATCHING_COLS]
             .apply(tuple, axis=1)
             .map({pair: i for i, pair in enumerate(name_category_triples)})
         )
