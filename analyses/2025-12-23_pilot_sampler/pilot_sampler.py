@@ -152,7 +152,7 @@ def concat_and_select_fixed_names_from_2024(excel_file_path, output_csv_path, na
         axis=1
     )
 
-    if affiliation_sort:
+    if affiliation_sort is not None:
         # Find all columns containing 'affiliation' (case-insensitive)
         aff_cols = [c for c in sampled_df.columns if 'affiliation' in c.lower()]
         def affiliation_priority(row):
@@ -173,7 +173,8 @@ def concat_and_select_fixed_names_from_2024(excel_file_path, output_csv_path, na
             else:
                 return 5
         sampled_df[PRIORITY_LABEL] = sampled_df.apply(affiliation_priority, axis=1)
-        sampled_df = sampled_df.sort_values([PRIORITY_LABEL, DRAW_LABEL])
+        if affiliation_sort:
+            sampled_df = sampled_df.sort_values([PRIORITY_LABEL, DRAW_LABEL])
 
     # Reorder columns: metadata first
     first_cols = [HCR_LIST_LABEL, HCR_ROW_LABEL]
