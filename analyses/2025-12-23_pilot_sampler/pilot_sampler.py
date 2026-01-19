@@ -80,37 +80,37 @@ NON_ENGLISH_NON_EU_HICS_NO_CHINA = [  # may include overseas territories and suc
     if not any(c in hic for c in ENGLISH_HICS + EU_COUNTRIES + GREATER_CHINA)
 ]  # 50 countries: ['American Samoa', 'Andorra', 'Antigua and Barbuda', 'Aruba', 'Bahamas, The', 'Bahrain', 'Barbados', 'Bermuda', 'British Virgin Islands', 'Brunei Darussalam', 'Cayman Islands', 'Channel Islands', 'Chile', 'Curaçao', 'Faeroe Islands', 'French Polynesia', 'Gibraltar', 'Greenland', 'Guam', 'Guyana', 'Iceland', 'Isle of Man', 'Israel', 'Japan', 'Korea, Rep.', 'Kuwait', 'Liechtenstein', 'Monaco', 'Nauru', 'New Caledonia', 'Northern Mariana Islands', 'Norway', 'Oman', 'Palau', 'Panama', 'Qatar', 'Russian Federation', 'San Marino', 'Saudi Arabia', 'Seychelles', 'Singapore', 'Sint Maarten (Dutch part)', 'Slovak Republic', 'St. Kitts and Nevis', 'St. Martin (French part)', 'Switzerland', 'Trinidad and Tobago', 'Turks and Caicos Islands', 'United Arab Emirates', 'Uruguay']
 
-def concat_dfs_from_file_list(excel_file_paths: list[str]):
-        def hcr_header_unify(cat: str) -> str:
-            return 'hcr.' + cat.replace(' ','_').replace(':','')
-        # Load all excel files
-        dfs = {}
-        for file in excel_file_paths:
-            if file.endswith(".xlsx") and not file.startswith("~$"):
-                path = file
-                try:
-                    with warnings.catch_warnings():
-                        warnings.simplefilter("ignore", UserWarning)
-                        df = pd.read_excel(path)
-                        df.columns = [hcr_header_unify(str(col).lower()) for col in df.columns]
-                    dfs[path] = df
-                except Exception as e:
-                    print(f"Error reading {file}: {e}")
+def concat_dfs_from_file_list(excel_file_paths: list[str]) -> pd.DataFrame:
+    def hcr_header_unify(cat: str) -> str:
+        return 'hcr.' + cat.replace(' ','_').replace(':','')
+    # Load all excel files
+    dfs = {}
+    for file in excel_file_paths:
+        if file.endswith(".xlsx") and not file.startswith("~$"):
+            path = file
+            try:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore", UserWarning)
+                    df = pd.read_excel(path)
+                    df.columns = [hcr_header_unify(str(col).lower()) for col in df.columns]
+                dfs[path] = df
+            except Exception as e:
+                print(f"Error reading {file}: {e}")
 
-        if not dfs:
-            raise FileNotFoundError("No Excel files found.")
+    if not dfs:
+        raise FileNotFoundError("No Excel files found.")
 
-        full_df = pd.concat(
-            [df.assign(**{HCR_LIST_LABEL: os.path.basename(path)}) for path, df in dfs.items()],
-            ignore_index=False
-        )
-        print(f"Total rows across {len(full_df[HCR_LIST_LABEL].unique())} Excel files: {len(full_df)}")
-        # Reset index to make it a column while keeping original index
-        full_df = full_df.reset_index().rename(columns={"index": HCR_ROW_LABEL})
-        # Have it match Excel row numbering (+ header, + start from)
-        full_df[HCR_ROW_LABEL] = full_df[HCR_ROW_LABEL] + 2
+    full_df = pd.concat(
+        [df.assign(**{HCR_LIST_LABEL: os.path.basename(path)}) for path, df in dfs.items()],
+        ignore_index=False
+    )
+    print(f"Total rows across {len(full_df[HCR_LIST_LABEL].unique())} Excel files: {len(full_df)}")
+    # Reset index to make it a column while keeping original index
+    full_df = full_df.reset_index().rename(columns={"index": HCR_ROW_LABEL})
+    # Have it match Excel row numbering (+ header, + start from)
+    full_df[HCR_ROW_LABEL] = full_df[HCR_ROW_LABEL] + 2
 
-        return full_df
+    return full_df
 
 def concat_and_select_fixed_names_from_2024(excel_file_path, output_csv_path, name_category_triples: list[tuple[str, str, str]], affiliation_sort: bool | None=None):
     if not (str(excel_file_path).endswith('.xlsx') and '2024' in str(excel_file_path)):
