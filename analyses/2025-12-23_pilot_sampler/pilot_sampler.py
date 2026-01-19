@@ -112,12 +112,28 @@ def concat_dfs_from_file_list(excel_file_paths: list[str]) -> pd.DataFrame:
 
     return full_df
 
-def concat_and_select_fixed_names_from_2024(excel_file_path, output_csv_path, name_category_triples: list[tuple[str, str, str]], affiliation_sort: bool | None=None):
+def concat_and_select_fixed_names_from_2024(excel_file_path, folder_path, output_csv_path, name_category_triples: list[tuple[str, str, str]], affiliation_sort: bool | None=None):
     if not (str(excel_file_path).endswith('.xlsx') and '2024' in str(excel_file_path)):
         raise RuntimeError("Only 2024 xlsx is supported")
     print('HCR list sampling\n-----------------')
     try:
+        folder_file_paths = [
+            os.path.join(folder_path, f)
+            for f in sorted(os.listdir(folder_path))
+            if f.endswith(".xlsx") and not f.startswith("~$")
+        ]
+        folder_full_df = concat_dfs_from_file_list(folder_file_paths)
+        # Keep only column names, drop all rows
+        folder_full_df = folder_full_df.iloc[0:0]
+        print(f"Read col names from {folder_path!r}:\n{folder_full_df.columns}")
+    except Exception as e:
+        print(e)
+    try:
         full_df = concat_dfs_from_file_list([excel_file_path])
+        # Ensure full_df has all columns from folder_full_df
+        full_df = full_df.reindex(columns=folder_full_df.columns)
+        print(f"Read df from {excel_file_path!r}\n"
+              "Reindexed to match col names schema above")
     except Exception as e:
         print(e)
 
