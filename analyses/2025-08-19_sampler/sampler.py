@@ -1,5 +1,14 @@
 ### Helper: produces verifiable World Bank country lists ###
 
+# 2026-02-25: IMPORTANT! After code review by codex 5.3
+# it turned out that the sampling algorithm here is with
+# replacement, which is not what was intended. By chance,
+# all the 300 draws we had were unique. In a version of
+# sampling integrated into 2026-01-02_enrich_full_df
+# (as step 5) this issue has been fixed for future draws
+# while preserving compatibility and no regressions for
+# the first 300 draws.
+
 import pandas as pd
 from typing import Literal
 
